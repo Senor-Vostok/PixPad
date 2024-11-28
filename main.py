@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from obb.styles import *
 from obb.initialization import *
+from PyQt5.Qt import QIcon
 import sys
 
 
@@ -9,7 +10,7 @@ class PixPad(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('PixPad')
-        brushes = init_brushes()
+        self.brushes = init_brushes()
         self.size_of_buttons = 30
         self.init_ui()
         self.showMaximized()
@@ -41,7 +42,7 @@ class PixPad(QWidget):
         right_panel.setStyleSheet("background-color: rgb(99, 105, 105);")
         right_panel.setFrameShape(QFrame.StyledPanel)
         right_layout = QVBoxLayout(right_panel)
-        right_layout.addWidget(QPushButton("Кисть"), 3)
+        right_layout.addLayout(self.show_brushes(self.brushes))
         colors_layout = QVBoxLayout(right_panel)
         colors_layout.setAlignment(Qt.AlignTop)
         colors_layout.addLayout(self.show_colors([(0, 255, 0), (233, 3, 255), (0, 4, 54), (0, 0, 0), (233, 3, 45), (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)]))
@@ -124,11 +125,13 @@ class PixPad(QWidget):
         max_column = 10
         for i, brush in enumerate(brushes):
             button_brush = QPushButton()
-            button_brush.setIcon(brush.get_ico())
-            button_brush.setIconSize(brush.get_ico().size())
+            button_brush.setStyleSheet(BUTTON_BRUSH)
+            button_brush.setFixedSize(self.size_of_buttons, self.size_of_buttons)
+            button_brush.setIcon(QIcon(brush.get_ico()))
             row = i // max_column
             col = i % max_column
             grid_brush.addWidget(button_brush, row, col)
+        grid_brush.setAlignment(Qt.AlignTop)
         brushes_layout.addLayout(grid_brush)
         return brushes_layout
 

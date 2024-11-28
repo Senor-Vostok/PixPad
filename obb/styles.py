@@ -63,3 +63,17 @@ BUTTON_DARK = """
         background-image: url('data/ico/buttons_hover/dark.png');
     }
 """
+BUTTON_BRUSH = """
+    QPushButton {
+        background-repeat: no-repeat;
+        background-position: center;
+        border: none;
+        
+    }
+    QPushButton:hover {
+        background-image: url('data/ico/buttons_hover/dark.png');
+    }
+    QPushButton:pressed {
+        background-image: url('data/ico/buttons_hover/bright.png');
+    }
+"""
