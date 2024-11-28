@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from obb.styles import *
+from obb.initialization import *
 import sys
 
 
@@ -8,6 +9,7 @@ class PixPad(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('PixPad')
+        brushes = init_brushes()
         self.size_of_buttons = 30
         self.init_ui()
         self.showMaximized()
@@ -40,7 +42,6 @@ class PixPad(QWidget):
         right_panel.setFrameShape(QFrame.StyledPanel)
         right_layout = QVBoxLayout(right_panel)
         right_layout.addWidget(QPushButton("Кисть"), 3)
-        # должны быть кнопки в панели цветов
         colors_layout = QVBoxLayout(right_panel)
         colors_layout.setAlignment(Qt.AlignTop)
         colors_layout.addLayout(self.show_colors([(0, 255, 0), (233, 3, 255), (0, 4, 54), (0, 0, 0), (233, 3, 45), (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)]))
@@ -51,7 +52,7 @@ class PixPad(QWidget):
         splitter.addWidget(left_scroll_area)
         splitter.addWidget(center_frame)
         splitter.setStretchFactor(0, 1)
-        splitter.setStretchFactor(1, 70)
+        splitter.setStretchFactor(1, 18)
 
         top_panel = QLabel("Всякие настройки")
         top_panel.setStyleSheet("padding: 10px; font-size: 16px;")  # Временно
@@ -110,8 +111,26 @@ class PixPad(QWidget):
             color_grid_layout.addWidget(color_button, row, col)
         return color_grid_layout
 
-    def show_brushes(self, current_brush, brushes):
-        pass
+    def show_brushes(self, brushes, current_brush=None):
+        if not current_brush:
+            current_brush = brushes[0]
+        brushes_layout = QHBoxLayout()
+        main_brush = QLabel(self)
+        main_brush.setPixmap(current_brush.get_ico([100, 100]))
+        brushes_layout.addWidget(main_brush)
+        grid_brush = QGridLayout()
+        grid_brush.setHorizontalSpacing(5)
+        grid_brush.setVerticalSpacing(5)
+        max_column = 10
+        for i, brush in enumerate(brushes):
+            button_brush = QPushButton()
+            button_brush.setIcon(brush.get_ico())
+            button_brush.setIconSize(brush.get_ico().size())
+            row = i // max_column
+            col = i % max_column
+            grid_brush.addWidget(button_brush, row, col)
+        brushes_layout.addLayout(grid_brush)
+        return brushes_layout
 
     def show_palette(self, current_palette, palettes, chosen_color):
         pass
