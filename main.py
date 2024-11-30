@@ -4,6 +4,8 @@ from obb.styles import *
 from obb.initialization import *
 from PyQt5.Qt import QIcon
 import sys
+from obb.redefinitions.PixFrame import PixFrame
+from obb.redefinitions.PixLabel import PixLabel
 
 
 class PixPad(QWidget):
@@ -11,7 +13,7 @@ class PixPad(QWidget):
         super().__init__()
         self.setWindowTitle('PixPad')
         self.brushes = init_brushes()
-        self.canvas = init_canvas((40, 40))
+        self.canvas = init_canvas((400, 400))
         self.size_of_buttons = 30
         self.init_ui()
         self.showMaximized()
@@ -31,11 +33,11 @@ class PixPad(QWidget):
         left_content.setLayout(left_layout)
         left_scroll_area.setWidget(left_content)
 
-        center_frame = QFrame()
+        center_frame = PixFrame()
         center_frame.setFrameShape(QFrame.StyledPanel)
         center_frame.setStyleSheet("background-color: rgb(52, 58, 59);")
         center_frame_layout = QVBoxLayout(center_frame)
-        drawing_label = QLabel()
+        drawing_label = PixLabel()
         drawing_label.setPixmap(self.canvas.get_content())
         center_frame_layout.addWidget(drawing_label, alignment=Qt.AlignCenter)
 

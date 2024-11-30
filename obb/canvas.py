@@ -23,7 +23,7 @@ class Canvas:
     def __init__(self, size, layers=(), current_frame=0):
         self.layers = list()
         self.width, self.height = size
-        self.background_color = (0, 0, 0, 0)
+        self.background_color = (0, 0, 0, 100)  # потом поставить все по нулям!!
         self.current_frame = current_frame
         if layers:
             self.layers = layers
