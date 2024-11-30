@@ -1,7 +1,13 @@
+from PIL import Image
+
+
 class Layer:
-    def __init__(self, frames, visibility=100):
+    def __init__(self, frames, visibility=1):
         self.frames = frames
         self.visibility = visibility
+
+    def get_content(self, current_frame=0):
+        return self.frames[current_frame].image
 
     def change_visibility(self, new_visibility):  # Изменить прозрачность слоя
         pass

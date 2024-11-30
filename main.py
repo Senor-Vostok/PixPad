@@ -11,6 +11,7 @@ class PixPad(QWidget):
         super().__init__()
         self.setWindowTitle('PixPad')
         self.brushes = init_brushes()
+        self.canvas = init_canvas((40, 40))
         self.size_of_buttons = 30
         self.init_ui()
         self.showMaximized()
@@ -34,15 +35,16 @@ class PixPad(QWidget):
         center_frame.setFrameShape(QFrame.StyledPanel)
         center_frame.setStyleSheet("background-color: rgb(52, 58, 59);")  # Временно
         center_frame_layout = QVBoxLayout(center_frame)
-        drawing_label = QLabel("Картинка")  # Тут могла быть ваша картинка
-        drawing_label.setStyleSheet("background-color: lightgray; border: 2px solid black;")  # Временно
+        drawing_label = QLabel()
+        pixmap = self.canvas.get_content()
+        drawing_label.setPixmap(pixmap)
         center_frame_layout.addWidget(drawing_label, alignment=Qt.AlignCenter)
 
         right_panel = QFrame()
         right_panel.setStyleSheet("background-color: rgb(99, 105, 105);")
         right_panel.setFrameShape(QFrame.StyledPanel)
         right_layout = QVBoxLayout(right_panel)
-        right_layout.addLayout(self.show_brushes(self.brushes))
+        right_layout.addLayout(self.show_brushes(self.brushes * 23))
         colors_layout = QVBoxLayout(right_panel)
         colors_layout.setAlignment(Qt.AlignTop)
         colors_layout.addLayout(self.show_colors([(0, 255, 0), (233, 3, 255), (0, 4, 54), (0, 0, 0), (233, 3, 45), (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)]))
@@ -120,9 +122,9 @@ class PixPad(QWidget):
         main_brush.setPixmap(current_brush.get_ico([100, 100]))
         brushes_layout.addWidget(main_brush)
         grid_brush = QGridLayout()
-        grid_brush.setHorizontalSpacing(5)
-        grid_brush.setVerticalSpacing(5)
-        max_column = 10
+        grid_brush.setHorizontalSpacing(0)
+        grid_brush.setVerticalSpacing(0)
+        max_column = 4
         for i, brush in enumerate(brushes):
             button_brush = QPushButton()
             button_brush.setStyleSheet(BUTTON_BRUSH)

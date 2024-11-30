@@ -19,7 +19,7 @@ class Brush:
     def recolor(self, new_color):  # прописать логику изменения цвета
         self.color = new_color
 
-    def get_ico(self, current_size=[30, 30]):
+    def get_ico(self, current_size=None):
         if current_size:
             b = self.ico.scaled(current_size[0], current_size[1])
             return b # Увеличенная иконка
