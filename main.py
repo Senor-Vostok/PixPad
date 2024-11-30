@@ -27,17 +27,16 @@ class PixPad(QWidget):
         left_content.setStyleSheet("background-color: rgb(99, 105, 105);")
         left_layout = QVBoxLayout(left_content)
         left_layout.setAlignment(Qt.AlignTop)
-        left_layout.addLayout(self.show_lf(5, 3))
+        left_layout.addLayout(self.show_lf(len(self.canvas.layers), len(self.canvas.layers[0].frames)))
         left_content.setLayout(left_layout)
         left_scroll_area.setWidget(left_content)
 
         center_frame = QFrame()
         center_frame.setFrameShape(QFrame.StyledPanel)
-        center_frame.setStyleSheet("background-color: rgb(52, 58, 59);")  # Временно
+        center_frame.setStyleSheet("background-color: rgb(52, 58, 59);")
         center_frame_layout = QVBoxLayout(center_frame)
         drawing_label = QLabel()
-        pixmap = self.canvas.get_content()
-        drawing_label.setPixmap(pixmap)
+        drawing_label.setPixmap(self.canvas.get_content())
         center_frame_layout.addWidget(drawing_label, alignment=Qt.AlignCenter)
 
         right_panel = QFrame()

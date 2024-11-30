@@ -35,6 +35,8 @@ class Canvas:
         original_image = Image.new("RGBA", (self.width, self.height), self.background_color)
         pixels_o = list(original_image.getdata())
         for layer in self.layers:
+            if not layer.is_active:
+                continue
             frame = layer.get_content(self.current_frame)
             pixels = list(frame.getdata())
             for i, pixel in enumerate(pixels_o):
