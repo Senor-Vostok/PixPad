@@ -2,7 +2,6 @@ from PIL import Image
 from obb.layer import Layer
 from obb.frame import Frame
 from PyQt5.Qt import QImage, QPixmap
-from datetime import datetime
 
 
 def blend_pixels(pixel_top, pixel_bottom):
@@ -62,4 +61,6 @@ class Canvas:
                 pixels_o[i] = pix_brush[i]
         original_image.putdata(pixels_o)
         data = original_image.tobytes("raw", "RGBA")
+        del self.brush_frame
+        self.brush_frame = Frame(Image.new("RGBA", (self.width, self.height), self.background_color))
         return QPixmap(QImage(data, self.width, self.height, QImage.Format_RGBA8888))

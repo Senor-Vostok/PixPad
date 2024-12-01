@@ -16,24 +16,21 @@ class Brush:
     def recolor(self, new_color):  # прописать логику изменения цвета
         self.color = new_color
 
+    def draw(self, canvas, current_frame, xoy, k):
+        pass
+
     def get_ico(self, current_size=None):
         if current_size:
             b = self.ico.scaled(current_size[0], current_size[1])
             return b  # Увеличенная иконка
         return self.ico
 
-    def display_brush(self, canvas, xoy):
+    def display_brush(self, canvas, xoy, k):
         image_data = list(canvas.brush_frame.image.getdata())
         image_width, image_height = canvas.brush_frame.image.size
         for index in range(len(image_data)):
             x = index % image_width
             y = index // image_width
-            if xoy == (x, y):
-                image_data[index] = self.color
-            rad = abs(xoy.x() - self.size) // 2
-            x_up, x_down = xoy.x() + rad, xoy.x() - rad
-            y_up, y_down = xoy.y() + rad, xoy.y() - rad
-            print(image_data[index], self.color)
-            if int(x_down) < int(x) < int(x_up) and int(y_down) < int(y) < int(y_up):
+            if (xoy.x() // k, xoy.y() // k) == (x, y):
                 image_data[index] = self.color
         canvas.brush_frame.image.putdata(image_data)

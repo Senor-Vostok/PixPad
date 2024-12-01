@@ -15,7 +15,7 @@ class PixPad(QWidget):
         self.brushes = init_brushes()
         self.canvas = init_canvas((20, 40))
         self.speed_zoom = 2
-        self.drawing_label = PixLabel(self.zoom_canvas, self.brushes[0].display_brush, self.update_canvas, self.canvas)
+        self.drawing_label = PixLabel(self)
         self.pixmap_canvas = self.canvas.get_content()
         self.size_of_buttons = 30
         self.init_ui()
@@ -100,16 +100,19 @@ class PixPad(QWidget):
                 grid_layout.addWidget(layout_button, 0, i + 1)
         return grid_layout
 
-    def update_canvas(self):
-        self.pixmap_canvas = self.canvas.get_content()
+    def update_canvas(self, width=None, height=None):
+        if not width or not height:
+            width, height = self.pixmap_canvas.width(), self.pixmap_canvas.height()
+        del self.pixmap_canvas
+        self.pixmap_canvas = self.canvas.get_content().scaled(width, height, Qt.KeepAspectRatio)
         self.drawing_label.setPixmap(self.pixmap_canvas)
 
     def zoom_canvas(self, delta):
         if delta > 0:
-            self.pixmap_canvas = self.pixmap_canvas.scaled(self.pixmap_canvas.width() * self.speed_zoom, self.pixmap_canvas.height() * self.speed_zoom, Qt.KeepAspectRatio)
+            width, height = self.pixmap_canvas.width() * self.speed_zoom, self.pixmap_canvas.height() * self.speed_zoom
         else:
-            self.pixmap_canvas = self.pixmap_canvas.scaled(self.pixmap_canvas.width() // self.speed_zoom, self.pixmap_canvas.height() // self.speed_zoom, Qt.KeepAspectRatio)
-        self.update_canvas()
+            width, height = self.pixmap_canvas.width() // self.speed_zoom, self.pixmap_canvas.height() // self.speed_zoom
+        self.update_canvas(width, height)
 
     def show_colors(self, colors):
         color_grid_layout = QGridLayout()
