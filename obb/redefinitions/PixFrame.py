@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import QFrame
+from PyQt5.QtWidgets import QScrollArea
 
 
-class PixFrame(QFrame):
+class PixFrame(QScrollArea):
     def __init__(self, func=None):
         super().__init__()
         self.func = func
