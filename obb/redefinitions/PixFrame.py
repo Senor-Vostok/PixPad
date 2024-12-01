@@ -9,6 +9,7 @@ class PixFrame(QFrame):
     def mousePressEvent(self, event):
         print(f"QFrame: Mouse pressed at {event.pos()}")
 
+
     def mouseMoveEvent(self, event):
         print(f"QFrame: Mouse moved at {event.pos()}")
 

@@ -7,7 +7,7 @@ def init_brushes():
     brushes = list()
     for brush in os.listdir("data/brushes"):
         if os.path.isdir(f"data/brushes/{brush}"):
-            brushes.append(Brush(f"data/brushes/{brush}/ico.png", None, 'black'))
+            brushes.append(Brush(f"data/brushes/{brush}/ico.png"))
     return brushes
 
 

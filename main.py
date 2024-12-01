@@ -15,7 +15,7 @@ class PixPad(QWidget):
         self.brushes = init_brushes()
         self.canvas = init_canvas((20, 40))
         self.speed_zoom = 2
-        self.drawing_label = PixLabel(self.zoom_canvas)
+        self.drawing_label = PixLabel(self.zoom_canvas, self.brushes[0].display_brush, self.update_canvas, self.canvas)
         self.pixmap_canvas = self.canvas.get_content()
         self.size_of_buttons = 30
         self.init_ui()
@@ -101,6 +101,7 @@ class PixPad(QWidget):
         return grid_layout
 
     def update_canvas(self):
+        self.pixmap_canvas = self.canvas.get_content()
         self.drawing_label.setPixmap(self.pixmap_canvas)
 
     def zoom_canvas(self, delta):
