@@ -13,7 +13,10 @@ class PixPad(QWidget):
         super().__init__()
         self.setWindowTitle('PixPad')
         self.brushes = init_brushes()
-        self.canvas = init_canvas((400, 400))
+        self.canvas = init_canvas((20, 40))
+        self.speed_zoom = 2
+        self.drawing_label = PixLabel(self.zoom_canvas)
+        self.pixmap_canvas = self.canvas.get_content()
         self.size_of_buttons = 30
         self.init_ui()
         self.showMaximized()
@@ -33,13 +36,12 @@ class PixPad(QWidget):
         left_content.setLayout(left_layout)
         left_scroll_area.setWidget(left_content)
 
-        center_frame = PixFrame()
+        center_frame = PixFrame(self.zoom_canvas)
         center_frame.setFrameShape(QFrame.StyledPanel)
         center_frame.setStyleSheet("background-color: rgb(52, 58, 59);")
         center_frame_layout = QVBoxLayout(center_frame)
-        drawing_label = PixLabel()
-        drawing_label.setPixmap(self.canvas.get_content())
-        center_frame_layout.addWidget(drawing_label, alignment=Qt.AlignCenter)
+        self.update_canvas()
+        center_frame_layout.addWidget(self.drawing_label, alignment=Qt.AlignCenter)
 
         right_panel = QFrame()
         right_panel.setStyleSheet("background-color: rgb(99, 105, 105);")
@@ -48,7 +50,9 @@ class PixPad(QWidget):
         right_layout.addLayout(self.show_brushes(self.brushes * 23))
         colors_layout = QVBoxLayout(right_panel)
         colors_layout.setAlignment(Qt.AlignTop)
-        colors_layout.addLayout(self.show_colors([(0, 255, 0), (233, 3, 255), (0, 4, 54), (0, 0, 0), (233, 3, 45), (255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)]))
+        colors_layout.addLayout(self.show_colors(
+            [(0, 255, 0), (233, 3, 255), (0, 4, 54), (0, 0, 0), (233, 3, 45), (255, 0, 0), (0, 255, 0), (0, 0, 255),
+             (255, 255, 0)]))  # Временно
         right_layout.addLayout(colors_layout, 6)
         right_layout.addWidget(QPushButton("Палитра"), 3)
 
@@ -84,7 +88,6 @@ class PixPad(QWidget):
                 frame_button.setStyleSheet(BUTTON_FRAME)
                 frame_button.setFixedSize(self.size_of_buttons, self.size_of_buttons)
                 grid_layout.addWidget(frame_button, j + 1, i)
-        #  Тут надо логику для добавления добавить
                 if i == count_layouts - 1 and j == count_frames - 1:
                     layout_button = QPushButton()
                     layout_button.setStyleSheet(BUTTON_PLUS)
@@ -95,8 +98,17 @@ class PixPad(QWidget):
                 layout_button.setStyleSheet(BUTTON_PLUS)
                 layout_button.setFixedSize(self.size_of_buttons, self.size_of_buttons)
                 grid_layout.addWidget(layout_button, 0, i + 1)
-        # Тут надо логику для добавления добавить
         return grid_layout
+
+    def update_canvas(self):
+        self.drawing_label.setPixmap(self.pixmap_canvas)
+
+    def zoom_canvas(self, delta):
+        if delta > 0:
+            self.pixmap_canvas = self.pixmap_canvas.scaled(self.pixmap_canvas.width() * self.speed_zoom, self.pixmap_canvas.height() * self.speed_zoom, Qt.KeepAspectRatio)
+        else:
+            self.pixmap_canvas = self.pixmap_canvas.scaled(self.pixmap_canvas.width() // self.speed_zoom, self.pixmap_canvas.height() // self.speed_zoom, Qt.KeepAspectRatio)
+        self.update_canvas()
 
     def show_colors(self, colors):
         color_grid_layout = QGridLayout()
@@ -107,9 +119,11 @@ class PixPad(QWidget):
             color_button = QPushButton()
             color_button.setFixedSize(self.size_of_buttons, self.size_of_buttons)
             if sum(color) / 3 <= 128:
-                color_button.setStyleSheet(BUTTON_BRIGHT.split('<<color>>')[0] + ', '.join(str(j) for j in color) + BUTTON_BRIGHT.split('<<color>>')[1])
+                color_button.setStyleSheet(BUTTON_BRIGHT.split('<<color>>')[0] + ', '.join(str(j) for j in color) +
+                                           BUTTON_BRIGHT.split('<<color>>')[1])
             else:
-                color_button.setStyleSheet(BUTTON_DARK.split('<<color>>')[0] + ', '.join(str(j) for j in color) + BUTTON_DARK.split('<<color>>')[1])
+                color_button.setStyleSheet(BUTTON_DARK.split('<<color>>')[0] + ', '.join(str(j) for j in color) +
+                                           BUTTON_DARK.split('<<color>>')[1])
             row = i // max_columns
             col = i % max_columns
             color_grid_layout.addWidget(color_button, row, col)

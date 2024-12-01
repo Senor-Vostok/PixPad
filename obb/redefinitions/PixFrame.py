@@ -17,8 +17,5 @@ class PixFrame(QFrame):
 
     def wheelEvent(self, event):
         delta = event.angleDelta().y()
-        if delta > 0:
-            print("Scrolled up")
-        else:
-            print("Scrolled down")
+        self.func(delta) if self.func else None
         event.accept()
