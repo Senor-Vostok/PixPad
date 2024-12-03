@@ -28,25 +28,21 @@ class Brush:
                     i = i.replace('cx="', '')
                     i = i.replace('"', '')
                     i = i.split()
-                    print(i)
                     self.cx = float(i[0])
                 if 'cy' in i and "inkscape" not in i:
                     i = i.replace('cy="', '')
                     i = i.replace('"', '')
                     i = i.split()
-                    print(i)
                     self.cy = float(i[0])
                 if 'rx' in i and "inkscape" not in i:
                     i = i.replace('rx="', '')
                     i = i.replace('"', '')
                     i = i.split()
-                    print(i)
                     self.rx = float(i[0])
                 if 'ry' in i and "inkscape" not in i:
                     i = i.replace('ry="', '')
                     i = i.replace('"', '')
                     i = i.split()
-                    print(i)
                     self.ry = float(i[0])
 
     def resize(self, new_size):  # прописать логику увеличения кисти
