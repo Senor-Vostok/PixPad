@@ -6,15 +6,6 @@ class PixFrame(QScrollArea):
         super().__init__()
         self.func = func
 
-    def mousePressEvent(self, event):
-        print(f"QFrame: Mouse pressed at {event.pos()}")
-
-    def mouseMoveEvent(self, event):
-        print(f"QFrame: Mouse moved at {event.pos()}")
-
-    def mouseReleaseEvent(self, event):
-        print(f"QFrame: Mouse released at {event.pos()}")
-
     def wheelEvent(self, event):
         delta = event.angleDelta().y()
         self.func(delta) if self.func else None

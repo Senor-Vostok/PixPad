@@ -13,7 +13,7 @@ class PixPad(QWidget):
         super().__init__()
         self.setWindowTitle('PixPad')
         self.brushes = init_brushes()
-        self.canvas = init_canvas((20, 40))
+        self.canvas = init_canvas((100, 120))
         self.speed_zoom = 2
         self.drawing_label = PixLabel(self)
         self.pixmap_canvas = self.canvas.get_content()

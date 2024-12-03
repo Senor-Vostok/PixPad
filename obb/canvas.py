@@ -29,46 +29,118 @@ class Canvas:
         self.current_frame = current_frame
         self.current_layer = current_layer
 
-        self.background_image = Image.new("RGBA", (self.width, self.height), self.background_color)
-        pixels_o = self.background_image.load()
+        self.before_current_layer = Image.new("RGBA", (self.width, self.height), self.background_color)
+        self.drawing_layer = Image.new("RGBA", (self.width, self.height), self.background_color)
+        self.after_current_layer = Image.new("RGBA", (self.width, self.height), self.background_color)
+        self.brush_layer = Image.new("RGBA", (self.width, self.height), self.background_color)  # Нужен ли?
+        self.content = Image.new("RGBA", (self.width, self.height), self.background_color)
+
+        self.before_data = self.before_current_layer.load()
         for x in range(self.width):
             for y in range(self.height):
                 if (x // 16 + y // 16) % 2 == 0:
-                    pixels_o[x, y] = self.bright_gray
+                    self.before_data[x, y] = self.bright_gray
                 else:
-                    pixels_o[x, y] = self.light_gray
-
-        self.before_current_layer = None
-        self.after_current_layer = None
+                    self.before_data[x, y] = self.light_gray
+        self.drawing_data = self.drawing_layer.load()
+        self.after_data = self.after_current_layer.load()
+        self.content_data = self.content.load()
 
         if layers:
             self.layers = layers
         else:
             first_frame = Frame(Image.new("RGBA", size, self.background_color))
             self.layers.append(Layer([first_frame]))
-        self.brush_frame = Frame(Image.new("RGBA", size, self.background_color))
+
+        self.brush_frame = Frame(Image.new("RGBA", size, self.background_color))  # Убрать потом
+        self.update_canvas()
+        self.history = [list(self.content.getdata())]
+
+    def fill_pixels(self, pixels, display_brush=False):
+        self.content.putdata(self.history[-1])
+        have_after_layer = self.current_layer < len(self.layers) - 1
+        have_before_layer = self.current_layer > 0
+        for xoy, pixel in pixels:
+            if pixel[3] == 255:
+                self.drawing_data[xoy[0], xoy[1]] = pixel if not display_brush else self.drawing_data[xoy[0], xoy[1]]
+                if have_after_layer and self.after_data[xoy[0], xoy[1]][3] != 255:
+                    self.content_data[xoy[0], xoy[1]] = blend_pixels(self.after_data[xoy[0], xoy[1]], pixel)
+                elif not have_after_layer:
+                    self.content_data[xoy[0], xoy[1]] = pixel
+            else:
+                self.drawing_data[xoy[0], xoy[1]] = blend_pixels(pixel, self.drawing_data[xoy[0], xoy[1]]) if not display_brush else self.drawing_data[xoy[0], xoy[1]]
+                if have_before_layer:
+                    self.content_data[xoy[0], xoy[1]] = blend_pixels(self.drawing_data[xoy[0], xoy[1]], self.before_data[xoy[0], xoy[1]])
+                if have_after_layer:
+                    self.content_data[xoy[0], xoy[1]] = blend_pixels(self.after_data[xoy[0], xoy[1]], self.content_data[xoy[0], xoy[1]])
+                if not have_before_layer and not have_after_layer:
+                    self.content_data[xoy[0], xoy[1]] = blend_pixels(self.drawing_data[xoy[0], xoy[1]], self.content_data[xoy[0], xoy[1]])
+        if not display_brush:
+            self.history.append(list(self.content.getdata()))
+
+    def update_canvas(self):
+        self.content = Image.new("RGBA", (self.width, self.height), self.background_color)
+        self.content_data = self.content.load()
+
+        self.before_current_layer = Image.new("RGBA", (self.width, self.height), self.background_color)
+        self.before_data = self.before_current_layer.load()
+        for x in range(self.width):
+            for y in range(self.height):
+                if (x // 16 + y // 16) % 2 == 0:
+                    self.before_data[x, y] = self.bright_gray
+                else:
+                    self.before_data[x, y] = self.light_gray
+        if self.current_layer > 0:
+            self.merge_layers(self.layers[:self.current_layer], self.before_data)
+
+        self.drawing_layer = self.layers[self.current_layer]
+        self.drawing_data = self.drawing_layer.get_content(self.current_frame).load()
+
+        self.after_current_layer = Image.new("RGBA", (self.width, self.height), self.background_color)
+        self.after_data = self.after_current_layer.load()
+        if self.current_layer < len(self.layers) - 1:
+            self.merge_layers(self.layers[self.current_layer + 1:], self.after_data)
+
+        self.content = Image.new("RGBA", (self.width, self.height), self.background_color)
+        self.content_data = self.content.load()
+        for x in range(self.width):
+            for y in range(self.height):
+                self.content_data[x, y] = blend_pixels(blend_pixels(self.after_data[x, y], self.drawing_data[x, y]), self.before_data[x, y])
+
+    def merge_layers(self, layers, output_data):
+        for layer in layers:
+            pixels = layer.get_content(self.current_frame).load()
+            for x in range(self.width):
+                for y in range(self.height):
+                    if pixels[x, y][3] == 255:
+                        output_data[x, y] = pixels[x, y]
+                    else:
+                        output_data[x, y] = blend_pixels(pixels[x, y], output_data[x, y])
 
     def get_content(self):
-        pixels_o = list(self.background_image.getdata())
-        for layer in self.layers:  # Надо оптимизировать
-            if not layer.is_active:
-                continue
-            frame = layer.get_content(self.current_frame)
-            pixels = list(frame.getdata())
-            for i, pixel in enumerate(pixels_o):
-                if layer.visibility < 1 or pixels[i][3] < 255:
-                    pixels_o[i] = blend_pixels(pixels[i], pixel)
-                else:
-                    pixels_o[i] = pixels[i]
-        pix_brush = list(self.brush_frame.image.getdata())
-        for i, pixel in enumerate(pixels_o):  # Может вообще перевести на отдельный Layer
-            if pix_brush[i][3] < 255:
-                pixels_o[i] = blend_pixels(pix_brush[i], pixel)
-            else:
-                pixels_o[i] = pix_brush[i]
-        final = Image.new("RGBA", (self.width, self.height), self.background_color)
-        final.putdata(pixels_o)
-        data = final.tobytes("raw", "RGBA")
-        del self.brush_frame
-        self.brush_frame = Frame(Image.new("RGBA", (self.width, self.height), self.background_color))
-        return QPixmap(QImage(data, self.width, self.height, QImage.Format_RGBA8888))
+        return QPixmap(QImage(self.content.tobytes("raw", "RGBA"), self.width, self.height, QImage.Format_RGBA8888))
+
+    #def get_content(self):
+       # pixels_o = list(self.background_image.getdata())
+        #for layer in self.layers:  # Надо оптимизировать
+          #  if not layer.is_active:
+            #    continue
+            #frame = layer.get_content(self.current_frame)
+           # pixels = list(frame.getdata())
+            #for i, pixel in enumerate(pixels_o):
+             #   if layer.visibility < 1 or pixels[i][3] < 255:
+            #        pixels_o[i] = blend_pixels(pixels[i], pixel)
+            #    else:
+            #        pixels_o[i] = pixels[i]
+       # pix_brush = list(self.brush_frame.image.getdata())
+        #for i, pixel in enumerate(pixels_o):  # Может вообще перевести на отдельный Layer
+         #   if pix_brush[i][3] < 255:
+         #       pixels_o[i] = blend_pixels(pix_brush[i], pixel)
+          #  else:
+           #     pixels_o[i] = pix_brush[i]
+      #  final = Image.new("RGBA", (self.width, self.height), self.background_color)
+      #  final.putdata(pixels_o)
+      #  data = final.tobytes("raw", "RGBA")
+      #  del self.brush_frame
+      #  self.brush_frame = Frame(Image.new("RGBA", (self.width, self.height), self.background_color))
+       # return QPixmap(QImage(data, self.width, self.height, QImage.Format_RGBA8888))
