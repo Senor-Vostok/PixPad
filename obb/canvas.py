@@ -20,13 +20,27 @@ def blend_pixels(pixel_top, pixel_bottom):
 
 
 class Canvas:
-    def __init__(self, size, layers=(), current_frame=0):
+    def __init__(self, size, layers=(), current_frame=0, current_layer=0):
         self.layers = list()
         self.width, self.height = size
-        self.background_color = (0, 0, 0, 0)  # потом поставить все по нулям!!
+        self.background_color = (0, 0, 0, 0)
         self.light_gray = (128, 128, 128, 255)
         self.bright_gray = (192, 192, 192, 255)
         self.current_frame = current_frame
+        self.current_layer = current_layer
+
+        self.background_image = Image.new("RGBA", (self.width, self.height), self.background_color)
+        pixels_o = self.background_image.load()
+        for x in range(self.width):
+            for y in range(self.height):
+                if (x // 16 + y // 16) % 2 == 0:
+                    pixels_o[x, y] = self.bright_gray
+                else:
+                    pixels_o[x, y] = self.light_gray
+
+        self.before_current_layer = None
+        self.after_current_layer = None
+
         if layers:
             self.layers = layers
         else:
@@ -35,15 +49,8 @@ class Canvas:
         self.brush_frame = Frame(Image.new("RGBA", size, self.background_color))
 
     def get_content(self):
-        original_image = Image.new("RGBA", (self.width, self.height), self.background_color)
-        pixels_o = list(original_image.getdata())
-        for i in range(len(pixels_o)):
-            y, x = i % self.width, i // self.width
-            if (x // 16 + y // 16) % 2 == 0:
-                pixels_o[i] = self.bright_gray
-            else:
-                pixels_o[i] = self.light_gray
-        for layer in self.layers:
+        pixels_o = list(self.background_image.getdata())
+        for layer in self.layers:  # Надо оптимизировать
             if not layer.is_active:
                 continue
             frame = layer.get_content(self.current_frame)
@@ -54,13 +61,14 @@ class Canvas:
                 else:
                     pixels_o[i] = pixels[i]
         pix_brush = list(self.brush_frame.image.getdata())
-        for i, pixel in enumerate(pixels_o):
+        for i, pixel in enumerate(pixels_o):  # Может вообще перевести на отдельный Layer
             if pix_brush[i][3] < 255:
                 pixels_o[i] = blend_pixels(pix_brush[i], pixel)
             else:
                 pixels_o[i] = pix_brush[i]
-        original_image.putdata(pixels_o)
-        data = original_image.tobytes("raw", "RGBA")
+        final = Image.new("RGBA", (self.width, self.height), self.background_color)
+        final.putdata(pixels_o)
+        data = final.tobytes("raw", "RGBA")
         del self.brush_frame
         self.brush_frame = Frame(Image.new("RGBA", (self.width, self.height), self.background_color))
         return QPixmap(QImage(data, self.width, self.height, QImage.Format_RGBA8888))

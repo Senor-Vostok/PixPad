@@ -38,12 +38,13 @@ class PixPad(QWidget):
 
         center_frame = PixFrame(self.zoom_canvas)
         center_frame.setFrameShape(QFrame.StyledPanel)
+        center_frame.setWidgetResizable(True)
         center_frame.setStyleSheet("background-color: rgb(52, 58, 59);")
-        center_frame_layout = QVBoxLayout(center_frame)
         self.update_canvas()
-        center_frame_layout.addWidget(self.drawing_label, alignment=Qt.AlignCenter)
+        center_frame.setAlignment(Qt.AlignCenter)
+        center_frame.setWidget(self.drawing_label)
 
-        right_panel = QFrame()
+        right_panel = QFrame(self)
         right_panel.setStyleSheet("background-color: rgb(99, 105, 105);")
         right_panel.setFrameShape(QFrame.StyledPanel)
         right_layout = QVBoxLayout(right_panel)
@@ -105,6 +106,7 @@ class PixPad(QWidget):
             width, height = self.pixmap_canvas.width(), self.pixmap_canvas.height()
         del self.pixmap_canvas
         self.pixmap_canvas = self.canvas.get_content().scaled(width, height, Qt.KeepAspectRatio)
+        self.drawing_label.setFixedSize(self.pixmap_canvas.width(), self.pixmap_canvas.height())
         self.drawing_label.setPixmap(self.pixmap_canvas)
 
     def zoom_canvas(self, delta):
