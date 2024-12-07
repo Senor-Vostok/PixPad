@@ -13,7 +13,8 @@ class PixPad(QWidget):
         super().__init__()
         self.setWindowTitle('PixPad')
         self.brushes = init_brushes()
-        self.canvas = init_canvas((100, 120))
+        self.canvas = init_canvas((60, 60))
+        self.palette = init_palette()
         self.speed_zoom = 2
         self.drawing_label = PixLabel(self)
         self.pixmap_canvas = self.canvas.get_content()
@@ -55,7 +56,7 @@ class PixPad(QWidget):
             [(0, 255, 0), (233, 3, 255), (0, 4, 54), (0, 0, 0), (233, 3, 45), (255, 0, 0), (0, 255, 0), (0, 0, 255),
              (255, 255, 0)]))  # Временно
         right_layout.addLayout(colors_layout, 6)
-        right_layout.addWidget(QPushButton("Палитра"), 3)
+        right_layout.addWidget(self.show_palette())
 
         splitter = QSplitter(Qt.Horizontal)
         splitter.addWidget(left_scroll_area)
@@ -158,8 +159,10 @@ class PixPad(QWidget):
         brushes_layout.addLayout(grid_brush)
         return brushes_layout
 
-    def show_palette(self, current_palette, palettes, chosen_color):
-        pass
+    def show_palette(self):
+        label = QLabel()
+        label.setPixmap(self.palette.show_palette())
+        return label
 
 
 if __name__ == "__main__":

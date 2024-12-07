@@ -17,6 +17,8 @@ class PixLabel(QLabel):
 
     def mousePressEvent(self, event):
         self.draw = True
+        scale_factor = self.app.pixmap_canvas.width() / self.app.canvas.brush_frame.image.size[0]
+        self.brush_func(self.canvas, event.pos(), scale_factor, not self.draw)
         self.update_func()
 
     def mouseMoveEvent(self, event):

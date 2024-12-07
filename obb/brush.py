@@ -43,13 +43,10 @@ class Brush:
                     self.ry = float(i[0])
 
     def resize(self, new_size):  # прописать логику увеличения кисти
-        pass
+        pass  # менять геометрию тут
 
     def recolor(self, new_color):  # прописать логику изменения цвета
         self.color = new_color
-
-    def draw(self, canvas, current_frame, xoy, k):
-        pass
 
     def get_ico(self, current_size=None):
         if current_size:

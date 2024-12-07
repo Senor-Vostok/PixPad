@@ -1,6 +1,7 @@
 import os
 from obb.brush import Brush
 from obb.canvas import Canvas
+from obb.palette import Palette
 
 
 def init_brushes():
@@ -13,3 +14,7 @@ def init_brushes():
 
 def init_canvas(size):
     return Canvas(size)
+
+
+def init_palette():
+    return Palette(None, None, (0, 128, 255))
