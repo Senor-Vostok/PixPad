@@ -56,7 +56,7 @@ class PixPad(QWidget):
             [(0, 255, 0), (233, 3, 255), (0, 4, 54), (0, 0, 0), (233, 3, 45), (255, 0, 0), (0, 255, 0), (0, 0, 255),
              (255, 255, 0)]))  # Временно
         right_layout.addLayout(colors_layout, 6)
-        right_layout.addWidget(self.show_palette())
+        right_layout.addLayout(self.show_palette())
 
         splitter = QSplitter(Qt.Horizontal)
         splitter.addWidget(left_scroll_area)
@@ -160,9 +160,20 @@ class PixPad(QWidget):
         return brushes_layout
 
     def show_palette(self):
-        label = QLabel()
-        label.setPixmap(self.palette.show_palette())
-        return label
+        layout = QVBoxLayout()
+        label_preview = QLabel()
+        label_preview.setPixmap(self.palette.preview(255))
+        label_visibility = QLabel()
+        label_visibility.setPixmap(self.palette.visibility_line(255))
+        label_palette = QLabel()
+        label_palette.setPixmap(self.palette.colors_line(255))
+        label_colors = QLabel()
+        label_colors.setPixmap(self.palette.show_palette())
+        layout.addWidget(label_preview)
+        layout.addWidget(label_visibility)
+        layout.addWidget(label_palette)
+        layout.addWidget(label_colors)
+        return layout
 
 
 if __name__ == "__main__":
