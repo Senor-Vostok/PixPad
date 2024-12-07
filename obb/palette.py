@@ -9,7 +9,7 @@ class Palette:
         self.color = chosen_color
 
     def show_palette(self):
-        palette_image = Image.new("RGB", (255, 255))
+        palette_image = Image.new("RGB", (255, 255), self.color)
         white = (255, 255, 255)
         gray = (40, 40, 40)
         black = (0, 0, 0)
