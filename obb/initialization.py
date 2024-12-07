@@ -17,4 +17,4 @@ def init_canvas(size):
 
 
 def init_palette():
-    return Palette(None, None, (0, 128, 255, 255))
+    return Palette(None, None, (94, 128, 19, 120))
