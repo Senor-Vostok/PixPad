@@ -6,7 +6,6 @@ from obb.Brush.simple_brush import SimpleBrush
 
 class Brush(SimpleBrush):
     def __init__(self, pattern_path, color=(0, 128, 255, 255), size_coef=1):
-        super().__init__()
         self.pattern_path = 'data/brushes/test_brush/Vector.svg'
         self.ico = QPixmap(QImage(pattern_path))
         self.send_pack = list()
@@ -23,7 +22,7 @@ class Brush(SimpleBrush):
 
     def init_brush(self):
         self.get_parametrs()
-        self.resize(4)
+        self.resize(1)
 
     def get_parametrs(self):
         with open(self.pattern_path, mode='rt') as f:
@@ -82,4 +81,4 @@ class Brush(SimpleBrush):
     def brush(self, canvas, xoy, k, brushing):
         cx = xoy.x() // k
         cy = xoy.y() // k
-        canvas.fill_pixels([[(cx + i[0], cy + i[1]), self.color] for i in self.geometry if 0 <= (cx + i[0]) < canvas.width and 0 <= (cy + i[1]) < canvas.height])
+        canvas.fill_pixels([[(cx + i[0], cy + i[1]), self.color] for i in self.geometry if 0 <= (cx + i[0]) < canvas.width and 0 <= (cy + i[1]) < canvas.height], brushing)
