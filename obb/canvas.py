@@ -30,13 +30,16 @@ class Canvas:
         else:
             first_frame = Frame(Image.new("RGBA", size, self.background_color))
             self.layers.append(Layer([first_frame]))
-
-        self.brush_frame = Frame(Image.new("RGBA", size, self.background_color))  # Убрать потом
         self.update_canvas()
-        self.history = [list(self.content.getdata())]
+        self.history = [()]
 
     def fill_pixels(self, pixels, display_brush=False):
-        self.content.putdata(self.history[-1])
+        old_pixels = self.history[-1]
+        for xoy, pixel in old_pixels:
+            self.content_data[xoy[0], xoy[1]] = pixel
+        if display_brush:
+            self.history = self.history[-10:]
+            self.history.append([(xoy, self.content_data[xoy[0], xoy[1]]) for xoy, pixel in pixels])
         have_after_layer = self.current_layer < len(self.layers) - 1
         have_before_layer = self.current_layer > 0
         for xoy, pixel in pixels:
@@ -55,8 +58,6 @@ class Canvas:
                     self.content_data[xoy[0], xoy[1]] = blend_pixels(blend_pixels(self.after_data[xoy[0], xoy[1]], pixel), self.content_data[xoy[0], xoy[1]])
                 else:
                     self.content_data[xoy[0], xoy[1]] = blend_pixels(blend_pixels(pixel, self.drawing_data[xoy[0], xoy[1]]), self.content_data[xoy[0], xoy[1]])
-        if not display_brush:
-            self.history.append(list(self.content.getdata()))
 
     def update_canvas(self):
         self.content = Image.new("RGBA", (self.width, self.height), self.background_color)

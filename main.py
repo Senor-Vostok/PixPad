@@ -6,6 +6,7 @@ from PyQt5.Qt import QIcon
 import sys
 from obb.redefinitions.PixFrame import PixFrame
 from obb.redefinitions.PixLabel import PixLabel
+from datetime import datetime
 
 
 class PixPad(QWidget):
@@ -13,7 +14,7 @@ class PixPad(QWidget):
         super().__init__()
         self.setWindowTitle('PixPad')
         self.brushes = init_brushes()
-        self.canvas = init_canvas((60, 60))
+        self.canvas = init_canvas((960, 540))
         self.palette = init_palette()
         self.speed_zoom = 2
         self.drawing_label = PixLabel(self)
@@ -105,9 +106,9 @@ class PixPad(QWidget):
     def update_canvas(self, width=None, height=None):
         if not width or not height:
             width, height = self.pixmap_canvas.width(), self.pixmap_canvas.height()
-        del self.pixmap_canvas
         self.pixmap_canvas = self.canvas.get_content().scaled(width, height, Qt.KeepAspectRatio)
-        self.drawing_label.setFixedSize(self.pixmap_canvas.width(), self.pixmap_canvas.height())
+        if width and height:
+            self.drawing_label.setFixedSize(self.pixmap_canvas.width(), self.pixmap_canvas.height())
         self.drawing_label.setPixmap(self.pixmap_canvas)
 
     def zoom_canvas(self, delta):
@@ -160,6 +161,7 @@ class PixPad(QWidget):
         return brushes_layout
 
     def show_palette(self):
+        start = datetime.now()
         layout = QVBoxLayout()
         label_preview = QLabel()
         label_preview.setPixmap(self.palette.preview(255))
@@ -173,6 +175,7 @@ class PixPad(QWidget):
         layout.addWidget(label_visibility)
         layout.addWidget(label_palette)
         layout.addWidget(label_colors)
+        print((datetime.now() - start))
         return layout
 
 
