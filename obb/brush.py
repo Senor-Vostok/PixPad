@@ -57,6 +57,4 @@ class Brush:
     def brush(self, canvas, xoy, k, brushing):
         cx = xoy.x() // k
         cy = xoy.y() // k
-        canvas.fill_pixels([[(cx + i[0], cy + i[1]), self.color] for i in self.geometry if
-                            0 <= (cx + i[0]) < canvas.width and 0 <= (cy + i[1]) < canvas.height],
-                           brushing)
+        canvas.fill_pixels([[(cx + i[0], cy + i[1]), self.color] for i in self.geometry if 0 <= (cx + i[0]) < canvas.width and 0 <= (cy + i[1]) < canvas.height], brushing)

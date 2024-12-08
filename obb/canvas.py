@@ -72,6 +72,7 @@ class Canvas:
                 else:
                     self.before_data[x, y] = self.light_gray
         if self.current_layer > 0:
+            print("before")
             self.merge_layers(self.layers[:self.current_layer], self.before_data)
 
         self.drawing_layer = self.layers[self.current_layer]
@@ -80,6 +81,7 @@ class Canvas:
         self.after_current_layer = Image.new("RGBA", (self.width, self.height), self.background_color)
         self.after_data = self.after_current_layer.load()
         if self.current_layer < len(self.layers) - 1:
+            print("after")
             self.merge_layers(self.layers[self.current_layer + 1:], self.after_data)
 
         self.content = Image.new("RGBA", (self.width, self.height), self.background_color)
@@ -100,3 +102,13 @@ class Canvas:
 
     def get_content(self):
         return QPixmap(QImage(self.content.tobytes("raw", "RGBA"), self.width, self.height, QImage.Format_RGBA8888))
+
+    def add_frame(self):
+        for layer in self.layers:
+            layer.frames.append(Frame(Image.new("RGBA", (self.width, self.height), self.background_color)))
+
+    def add_layout(self):
+        frames = list()
+        for i in range(len(self.layers[0].frames)):
+            frames.append(Frame(Image.new("RGBA", (self.width, self.height), self.background_color)))
+        self.layers.append(Layer(frames))
