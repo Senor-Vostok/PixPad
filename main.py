@@ -20,7 +20,7 @@ class PixPad(QWidget):
 
         self.brushes = init_brushes()
 
-        self.canvas = init_canvas((96, 54))
+        self.canvas = init_canvas((960, 540))
 
         self.palette = init_palette()
         self.label_preview = QLabel()

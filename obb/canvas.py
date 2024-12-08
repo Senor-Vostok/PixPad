@@ -36,11 +36,14 @@ class Canvas:
     def fill_pixels(self, pixels, display_brush=False):
         if not self.layers[self.current_layer].is_active:
             return
-        old_pixels = self.history[-1]
-        for xoy, pixel in old_pixels:
-            self.content_data[xoy[0], xoy[1]] = pixel
+        if not display_brush:
+            self.history.clear()
         if display_brush:
-            self.history = self.history[-10:]
+            if self.history:
+                old_pixels = self.history[-1]
+                for xoy, pixel in old_pixels:
+                    self.content_data[xoy[0], xoy[1]] = pixel
+                self.history = self.history[-1:]
             self.history.append([(xoy, self.content_data[xoy[0], xoy[1]]) for xoy, pixel in pixels])
         have_after_layer = self.current_layer < len(self.layers) - 1
         have_before_layer = self.current_layer > 0
