@@ -15,6 +15,7 @@ def blend_pixels(pixel_top, pixel_bottom):
     a = int(alpha * 255)
     return r, g, b, a
 
+
 def find_closest_color(layer, width, height, target_color):
     def color_distance(c1, c2):
         return math.sqrt(
@@ -23,6 +24,7 @@ def find_closest_color(layer, width, height, target_color):
             (c1[2] - c2[2]) ** 2 +
             (c1[3] - c2[3]) ** 2
         )
+
     closest_cords = None
     min_distance = float('inf')
     for y in range(height):

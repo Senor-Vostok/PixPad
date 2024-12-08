@@ -6,7 +6,7 @@ from PyQt5.Qt import QIcon
 import sys
 from obb.redefinitions.PixFrame import PixFrame
 from obb.redefinitions.PixLabel import PixLabel
-from datetime import datetime
+from obb.redefinitions.PalLabel import PalLabel
 
 
 class PixPad(QWidget):
@@ -14,8 +14,17 @@ class PixPad(QWidget):
         super().__init__()
         self.setWindowTitle('PixPad')
         self.brushes = init_brushes()
-        self.canvas = init_canvas((960, 540))
+        self.canvas = init_canvas((96, 54))
         self.palette = init_palette()
+        self.label_preview = QLabel()
+        self.label_preview.setPixmap(self.palette.preview())
+        self.label_visibility = PalLabel(self, "visibility")
+        self.label_visibility.setPixmap(self.palette.visibility_line())
+        self.label_palette = PalLabel(self, "colors")
+        self.label_palette.setPixmap(self.palette.colors_line())
+        self.label_colors = PalLabel(self, "palette")
+        self.label_colors.setPixmap(self.palette.show_palette())
+        self.brushes[0].color = self.palette.color
         self.speed_zoom = 2
         self.drawing_label = PixLabel(self)
         self.pixmap_canvas = self.canvas.get_content()
@@ -161,21 +170,11 @@ class PixPad(QWidget):
         return brushes_layout
 
     def show_palette(self):
-        start = datetime.now()
         layout = QVBoxLayout()
-        label_preview = QLabel()
-        label_preview.setPixmap(self.palette.preview(255))
-        label_visibility = QLabel()
-        label_visibility.setPixmap(self.palette.visibility_line(255))
-        label_palette = QLabel()
-        label_palette.setPixmap(self.palette.colors_line(255))
-        label_colors = QLabel()
-        label_colors.setPixmap(self.palette.show_palette())
-        layout.addWidget(label_preview)
-        layout.addWidget(label_visibility)
-        layout.addWidget(label_palette)
-        layout.addWidget(label_colors)
-        print((datetime.now() - start))
+        layout.addWidget(self.label_preview)
+        layout.addWidget(self.label_visibility)
+        layout.addWidget(self.label_palette)
+        layout.addWidget(self.label_colors)
         return layout
 
 

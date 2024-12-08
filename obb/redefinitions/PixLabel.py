@@ -15,7 +15,7 @@ class PixLabel(QLabel):
 
     def mousePressEvent(self, event):
         self.draw = True
-        self.brush_func(self.canvas, event.pos(), self.scale_factor, False)
+        self.brush_func(self.canvas, event.pos(), self.scale_factor, not self.draw)
         self.update_func()
         event.accept()
 
