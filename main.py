@@ -20,7 +20,7 @@ class PixPad(QWidget):
 
         self.brushes = init_brushes()
 
-        self.canvas = init_canvas((960, 540))
+        self.canvas = init_canvas((96, 54))
 
         self.palette = init_palette()
         self.label_preview = QLabel()
@@ -221,7 +221,9 @@ class PixPad(QWidget):
         if not current_brush:
             current_brush = brushes[0]
         brushes_layout = QHBoxLayout()
+        brushes_layout.setAlignment(Qt.AlignLeft)
         main_brush = QLabel(self)
+        main_brush.setFixedSize(100, 100)
         main_brush.setPixmap(current_brush.get_ico([100, 100]))
         brushes_layout.addWidget(main_brush)
         grid_brush = QGridLayout()
