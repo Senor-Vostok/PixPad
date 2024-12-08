@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from obb.styles import *
 from obb.initialization import *
-from PyQt5.Qt import QIcon
+from PyQt5.Qt import QIcon, QColor
 import sys
 from obb.redefinitions.PixFrame import PixFrame
 from obb.redefinitions.PixLabel import PixLabel
@@ -13,6 +13,8 @@ class PixPad(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('PixPad')
+
+        self.shadow_effect = QGraphicsDropShadowEffect(self)
 
         self.grid_layout = QGridLayout()
 
@@ -43,14 +45,19 @@ class PixPad(QWidget):
         self.showMaximized()
 
     def init_ui(self):
-        self.setStyleSheet("background-color: rgb(88, 108, 108);")
+        self.shadow_effect.setBlurRadius(20)
+        self.shadow_effect.setXOffset(5)
+        self.shadow_effect.setYOffset(5)
+        self.shadow_effect.setColor(QColor(0, 0, 0, 160))
+
+        self.setStyleSheet("background-color: rgb(51, 51, 51)")
         left_scroll_area = QScrollArea(self)
         left_scroll_area.setFrameShape(QFrame.StyledPanel)
         left_scroll_area.setWidgetResizable(True)
         left_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
 
         left_content = QWidget()
-        left_content.setStyleSheet("background-color: rgb(99, 105, 105);")
+        left_content.setStyleSheet("background-color: rgb(32, 33, 37);border-radius: 5px;border: 4px solid rgba(0, 0, 0, 255);")
         left_layout = QVBoxLayout(left_content)
         left_layout.setAlignment(Qt.AlignTop)
         self.show_lf(len(self.canvas.layers), len(self.canvas.layers[0].frames))
@@ -61,16 +68,16 @@ class PixPad(QWidget):
         center_frame = PixFrame(self.zoom_canvas)
         center_frame.setFrameShape(QFrame.StyledPanel)
         center_frame.setWidgetResizable(True)
-        center_frame.setStyleSheet("background-color: rgb(52, 58, 59);")
+        center_frame.setStyleSheet("background-color: rgb(32, 33, 37);border-radius: 5px;border: 4px solid rgba(0, 0, 0, 255);")
         self.update_canvas()
         center_frame.setAlignment(Qt.AlignCenter)
         center_frame.setWidget(self.drawing_label)
 
         right_panel = QFrame(self)
-        right_panel.setStyleSheet("background-color: rgb(99, 105, 105);")
+        right_panel.setStyleSheet("background-color: rgb(32, 33, 37);border-radius: 5px;border: 4px solid rgba(0, 0, 0, 255);")
         right_panel.setFrameShape(QFrame.StyledPanel)
         right_layout = QVBoxLayout(right_panel)
-        right_layout.addLayout(self.show_brushes(self.brushes * 23))
+        right_layout.addLayout(self.show_brushes(self.brushes))
         colors_layout = QVBoxLayout(right_panel)
         colors_layout.setAlignment(Qt.AlignTop)
         colors_layout.addLayout(self.show_colors(
@@ -85,12 +92,13 @@ class PixPad(QWidget):
         splitter.setStretchFactor(0, 1)
         splitter.setStretchFactor(1, 18)
 
-        top_panel = QLabel("Всякие настройки")
-        top_panel.setStyleSheet("padding: 10px; font-size: 16px;")  # Временно
-        top_panel.setAlignment(Qt.AlignCenter)
+        top_panel = QHBoxLayout()
+        file = QPushButton("Файл")
+        top_panel.addWidget(file)
+        top_panel.setAlignment(Qt.AlignLeft)
 
         main_layout = QVBoxLayout(self)
-        main_layout.addWidget(top_panel, 1)
+        main_layout.addLayout(top_panel, 1)
         work_layout = QHBoxLayout(self)
         work_layout.addWidget(splitter, 10)
         work_layout.addWidget(right_panel, 1)
@@ -103,12 +111,13 @@ class PixPad(QWidget):
             layout_button = QPushButton()
             layout_button.setStyleSheet(BUTTON_LAYOUT)
             layout_button.setFixedSize(self.size_of_buttons, self.size_of_buttons)
+            layout_button.clicked.connect(lambda _, x=i: self.hide_show_layer(x))
             self.grid_layout.addWidget(layout_button, 0, i)
             for j in range(count_frames):
                 frame_button = QPushButton()
                 frame_button.setStyleSheet(BUTTON_FRAME)
                 frame_button.setFixedSize(self.size_of_buttons, self.size_of_buttons)
-                frame_button.clicked.connect(lambda: self.change_frame(j + 1, i))
+                frame_button.clicked.connect(lambda _, x=i, y=j: self.change_frame(y + 1, x))
                 self.grid_layout.addWidget(frame_button, j + 1, i)
                 if i == count_layouts - 1 and j == count_frames - 1:
                     layout_button = QPushButton()
@@ -123,8 +132,17 @@ class PixPad(QWidget):
                 layout_button.clicked.connect(self.add_layout)
                 self.grid_layout.addWidget(layout_button, 0, i + 1)
 
+    def hide_show_layer(self, number_layer):
+        self.canvas.layers[number_layer].is_active = not self.canvas.layers[number_layer].is_active
+        layout_button = QPushButton()
+        layout_button.setStyleSheet(BUTTON_LAYOUT if self.canvas.layers[number_layer].is_active else BUTTON_LAYOUT_D)
+        layout_button.setFixedSize(self.size_of_buttons, self.size_of_buttons)
+        layout_button.clicked.connect(lambda _, x=number_layer: self.hide_show_layer(x))
+        self.grid_layout.addWidget(layout_button, 0, number_layer)
+        self.canvas.update_canvas()
+        self.update_canvas()
+
     def change_frame(self, number_frame, number_layer):
-        print(number_frame, number_layer)
         self.canvas.current_layer = number_layer
         self.canvas.current_frame = number_frame - 1
         self.canvas.update_canvas()
@@ -136,7 +154,7 @@ class PixPad(QWidget):
             frame_button = QPushButton()
             frame_button.setStyleSheet(BUTTON_FRAME)
             frame_button.setFixedSize(self.size_of_buttons, self.size_of_buttons)
-            frame_button.clicked.connect(lambda: self.change_frame(count + 1, i))
+            frame_button.clicked.connect(lambda _, x=i: self.change_frame(count + 1, x))
             self.grid_layout.addWidget(frame_button, count + 1, i)
         layout_button = QPushButton()
         layout_button.setStyleSheet(BUTTON_PLUS)
@@ -150,12 +168,13 @@ class PixPad(QWidget):
         layout_button = QPushButton()
         layout_button.setStyleSheet(BUTTON_LAYOUT)
         layout_button.setFixedSize(self.size_of_buttons, self.size_of_buttons)
+        layout_button.clicked.connect(lambda _, x=count: self.hide_show_layer(x))
         self.grid_layout.addWidget(layout_button, 0, count)
         for i in range(len(self.canvas.layers[0].frames)):
             frame_button = QPushButton()
             frame_button.setStyleSheet(BUTTON_FRAME)
             frame_button.setFixedSize(self.size_of_buttons, self.size_of_buttons)
-            frame_button.clicked.connect(lambda _, x=i: self.change_frame(x + 1, count))
+            frame_button.clicked.connect(lambda _, x=i, b=count: self.change_frame(x + 1, b))
             self.grid_layout.addWidget(frame_button, i + 1, count)
         layout_button = QPushButton()
         layout_button.setStyleSheet(BUTTON_PLUS)

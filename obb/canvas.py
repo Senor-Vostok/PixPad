@@ -34,6 +34,8 @@ class Canvas:
         self.history = [()]
 
     def fill_pixels(self, pixels, display_brush=False):
+        if not self.layers[self.current_layer].is_active:
+            return
         old_pixels = self.history[-1]
         for xoy, pixel in old_pixels:
             self.content_data[xoy[0], xoy[1]] = pixel
@@ -62,7 +64,6 @@ class Canvas:
     def update_canvas(self):
         self.content = Image.new("RGBA", (self.width, self.height), self.background_color)
         self.content_data = self.content.load()
-
         self.before_current_layer = Image.new("RGBA", (self.width, self.height), self.background_color)
         self.before_data = self.before_current_layer.load()
         for x in range(self.width):
@@ -72,16 +73,15 @@ class Canvas:
                 else:
                     self.before_data[x, y] = self.light_gray
         if self.current_layer > 0:
-            print("before")
             self.merge_layers(self.layers[:self.current_layer], self.before_data)
 
-        self.drawing_layer = self.layers[self.current_layer]
+        if self.layers[self.current_layer].is_active:
+            self.drawing_layer = self.layers[self.current_layer]
         self.drawing_data = self.drawing_layer.get_content(self.current_frame).load()
 
         self.after_current_layer = Image.new("RGBA", (self.width, self.height), self.background_color)
         self.after_data = self.after_current_layer.load()
         if self.current_layer < len(self.layers) - 1:
-            print("after")
             self.merge_layers(self.layers[self.current_layer + 1:], self.after_data)
 
         self.content = Image.new("RGBA", (self.width, self.height), self.background_color)
@@ -92,13 +92,14 @@ class Canvas:
 
     def merge_layers(self, layers, output_data):
         for layer in layers:
-            pixels = layer.get_content(self.current_frame).load()
-            for x in range(self.width):
-                for y in range(self.height):
-                    if pixels[x, y][3] == 255:
-                        output_data[x, y] = pixels[x, y]
-                    else:
-                        output_data[x, y] = blend_pixels(pixels[x, y], output_data[x, y])
+            if layer.is_active:
+                pixels = layer.get_content(self.current_frame).load()
+                for x in range(self.width):
+                    for y in range(self.height):
+                        if pixels[x, y][3] == 255:
+                            output_data[x, y] = pixels[x, y]
+                        else:
+                            output_data[x, y] = blend_pixels(pixels[x, y], output_data[x, y])
 
     def get_content(self):
         return QPixmap(QImage(self.content.tobytes("raw", "RGBA"), self.width, self.height, QImage.Format_RGBA8888))

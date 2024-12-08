@@ -13,6 +13,20 @@ BUTTON_LAYOUT = """
         background-image: url('data/ico/buttons_active/layout.png');
     }
 """
+BUTTON_LAYOUT_D = """
+    QPushButton {
+        background-image: url('data/ico/buttons_passive/layout_hide.png');
+        background-repeat: no-repeat;
+        background-position: center;
+        border: none;
+    }
+    QPushButton:hover {
+        background-image: url('data/ico/buttons_hover/layout_hide.png');
+    }
+    QPushButton:pressed {
+        background-image: url('data/ico/buttons_active/layout_hide.png');
+    }
+"""
 BUTTON_PLUS = """
     QPushButton {
         background-image: url('data/ico/buttons_passive/plus.png');

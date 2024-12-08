@@ -23,3 +23,7 @@ class PalLabel(QLabel):
     def mousePressEvent(self, event):
         self.manager(event)
         event.accept()
+
+    def mouseMoveEvent(self, event):
+        self.manager(event)
+        event.accept()
