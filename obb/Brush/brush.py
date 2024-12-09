@@ -8,6 +8,7 @@ class Brush(SimpleBrush):
     def __init__(self, pattern_path, vector_path):
         super().__init__(pattern_path, vector_path)
         self.init_brush()
+        self.bag = set()
 
     def init_brush(self):
         self.get_parametrs()
@@ -40,7 +41,7 @@ class Brush(SimpleBrush):
     def resize(self, new_size=1):
         scale = new_size / self.base_size
         self.size = new_size
-        rx = float(self.base_rx * scale)  # Масштабируем базовый радиус rx
+        rx = float(self.base_rx * scale)
         ry = float(self.base_ry * scale)
         if self.size <= 3:
             self.geometry = [[0, 0], [1, 0], [0, 1], [1, 1]] if self.size == 2 else [[0, 0]]
@@ -54,6 +55,21 @@ class Brush(SimpleBrush):
         self.geometry = cells
 
     def brush(self, canvas, xoy, k, brushing):
-        cx = xoy.x() // k
-        cy = xoy.y() // k
-        canvas.fill_pixels([[(cx + i[0], cy + i[1]), self.color] for i in self.geometry if 0 <= (cx + i[0]) < canvas.width and 0 <= (cy + i[1]) < canvas.height], brushing)
+        if brushing and self.bag:
+            canvas.fill_pixels(self.bag, False)
+            self.bag.clear()
+        elif not brushing:
+            cx = xoy.x() // k
+            cy = xoy.y() // k
+            data = [((cx + i[0], cy + i[1]), self.color) for i in self.geometry if
+                    0 <= (cx + i[0]) < canvas.width and 0 <= (cy + i[1]) < canvas.height]
+            extra_data = list()
+            for pixel in data:
+                if pixel not in self.bag:
+                    extra_data.append(pixel)
+                    self.bag.add(pixel)
+            canvas.fill_pixels(extra_data, False)
+        else:
+            cx = xoy.x() // k
+            cy = xoy.y() // k
+            canvas.fill_pixels([((cx + i[0], cy + i[1]), self.color) for i in self.geometry if 0 <= (cx + i[0]) < canvas.width and 0 <= (cy + i[1]) < canvas.height], True)

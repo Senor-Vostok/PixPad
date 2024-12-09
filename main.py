@@ -8,6 +8,7 @@ from obb.redefinitions.PixFrame import PixFrame
 from obb.redefinitions.PixLabel import PixLabel
 from obb.redefinitions.PalLabel import PalLabel
 from obb.savefile import *
+from PyQt5.QtGui import QKeySequence
 
 
 class PixPad(QWidget):
@@ -24,7 +25,7 @@ class PixPad(QWidget):
         self.brushes = init_brushes()
         self.brush = self.brushes[0]
 
-        self.canvas = init_canvas((960, 540))
+        self.canvas = init_canvas((96, 54))
 
         self.palette = init_palette()
         self.label_preview = QLabel()
@@ -57,6 +58,9 @@ class PixPad(QWidget):
         self.showMaximized()
 
     def init_ui(self):
+        self.undo_shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
+        self.undo_shortcut.activated.connect(lambda: self.last_image())
+
         self.shadow_effect.setBlurRadius(20)
         self.shadow_effect.setXOffset(5)
         self.shadow_effect.setYOffset(5)
@@ -106,8 +110,10 @@ class PixPad(QWidget):
         self.top_panel = QHBoxLayout()
         self.file = QPushButton("Файл")
         self.file_menu = QMenu()
+        self.create = QAction("Создать...", self)
         self.save_png_action = QAction("Сохранить как PNG", self)
         self.save_png_action.triggered.connect(self.save_canvas_as_png)
+        self.file_menu.addAction(self.create)
         self.file_menu.addAction(self.save_png_action)
         self.file.setMenu(self.file_menu)
         self.slider = QSlider(Qt.Horizontal)
@@ -115,7 +121,7 @@ class PixPad(QWidget):
         self.slider.setMaximum(64)
         self.slider.setTickInterval(1)
         self.slider.valueChanged.connect(lambda _: self.resize_brush())
-        self.value_brush = QLabel(f"X{self.slider.value()}")
+        self.value_brush = QLabel(f"X {self.slider.value()}")
         self.top_panel.addWidget(self.file)
         self.top_panel.addWidget(self.slider)
         self.top_panel.addWidget(self.value_brush)
@@ -127,6 +133,17 @@ class PixPad(QWidget):
         self.work_layout.addWidget(self.splitter, 10)
         self.work_layout.addWidget(self.right_panel, 1)
         self.main_layout.addLayout(self.work_layout, 30)
+
+    def last_image(self):
+        if len(self.canvas.history) < 2:
+            return
+        old = self.canvas.history[-2]
+        self.canvas.history = self.canvas.history[:-1]
+        self.canvas.before_current_layer.putdata(old[0])
+        self.canvas.drawing_layer.putdata(old[1])
+        self.canvas.after_current_layer.putdata(old[2])
+        self.canvas.update_canvas()
+        self.update_canvas()
 
     def change_brush(self, number, label):
         color = self.brush.color

@@ -1,5 +1,6 @@
 from PIL import Image
-import os
+
+
 class PixelEditorSaver:
     def __init__(self, width, height, background_color, content):
         self.width = width
@@ -11,7 +12,6 @@ class PixelEditorSaver:
         transparent_image = Image.new("RGBA", (self.width, self.height), (0, 0, 0, 0))
         transparent_data = transparent_image.load()
         content_data = self.content.load()
-
         for x in range(self.width):
             for y in range(self.height):
                 pixel = content_data[x, y]
@@ -19,6 +19,5 @@ class PixelEditorSaver:
                     transparent_data[x, y] = (0, 0, 0, 0)
                 else:
                     transparent_data[x, y] = pixel
-
         transparent_image.save(filename, "PNG")
 

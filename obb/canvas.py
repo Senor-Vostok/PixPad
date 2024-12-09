@@ -31,38 +31,30 @@ class Canvas:
             first_frame = Frame(Image.new("RGBA", size, self.background_color))
             self.layers.append(Layer([first_frame]))
         self.update_canvas()
-        self.history = [()]
+        self.brush_history = [()]
+        self.history = [[tuple(self.before_current_layer.getdata()),
+                         tuple(self.drawing_layer.getdata()),
+                         tuple(self.after_current_layer.getdata())]]
 
-    def fill_pixels(self, pixels, display_brush=False):
+    def fill_pixels(self, pixels, display_brush=False, erase=False):
         if not self.layers[self.current_layer].is_active:
             return
         if not display_brush:
-            self.history.clear()
+            self.brush_history.clear()
         if display_brush:
-            if self.history:
-                old_pixels = self.history[-1]
+            if self.brush_history:
+                old_pixels = self.brush_history[-1]
                 for xoy, pixel in old_pixels:
                     self.content_data[xoy[0], xoy[1]] = pixel
-                self.history = self.history[-1:]
-            self.history.append([(xoy, self.content_data[xoy[0], xoy[1]]) for xoy, pixel in pixels])
-        have_after_layer = self.current_layer < len(self.layers) - 1
-        have_before_layer = self.current_layer > 0
+                self.brush_history = self.brush_history[-1:]
+            self.brush_history.append([(xoy, self.content_data[xoy[0], xoy[1]]) for xoy, pixel in pixels])
         for xoy, pixel in pixels:
-            if pixel[3] == 255:
-                self.drawing_data[xoy[0], xoy[1]] = pixel if not display_brush else self.drawing_data[xoy[0], xoy[1]]
-                if have_after_layer and self.after_data[xoy[0], xoy[1]][3] != 255:
-                    self.content_data[xoy[0], xoy[1]] = blend_pixels(self.after_data[xoy[0], xoy[1]], pixel)
-                elif not have_after_layer:
-                    self.content_data[xoy[0], xoy[1]] = pixel
-            else:
+            if not erase:
                 self.drawing_data[xoy[0], xoy[1]] = blend_pixels(pixel, self.drawing_data[xoy[0], xoy[1]]) if not display_brush else self.drawing_data[xoy[0], xoy[1]]
-                if have_after_layer and have_before_layer:
-                    self.content_data[xoy[0], xoy[1]] = blend_pixels(blend_pixels(pixel, self.drawing_data[xoy[0], xoy[1]]), self.before_data[xoy[0], xoy[1]])
-                    self.content_data[xoy[0], xoy[1]] = blend_pixels(self.after_data[xoy[0], xoy[1]], self.content_data[xoy[0], xoy[1]])
-                elif have_after_layer and not have_before_layer:
-                    self.content_data[xoy[0], xoy[1]] = blend_pixels(blend_pixels(self.after_data[xoy[0], xoy[1]], pixel), self.content_data[xoy[0], xoy[1]])
-                else:
-                    self.content_data[xoy[0], xoy[1]] = blend_pixels(blend_pixels(pixel, self.drawing_data[xoy[0], xoy[1]]), self.content_data[xoy[0], xoy[1]])
+                self.content_data[xoy[0], xoy[1]] = blend_pixels(self.after_data[xoy[0], xoy[1]], blend_pixels(pixel, blend_pixels(self.drawing_data[xoy[0], xoy[1]], self.before_data[xoy[0], xoy[1]])))
+            else:
+                self.drawing_data[xoy[0], xoy[1]] = (0, 0, 0, 0) if not display_brush else self.drawing_data[xoy[0], xoy[1]]
+                self.content_data[xoy[0], xoy[1]] = blend_pixels(self.after_data[xoy[0], xoy[1]], blend_pixels((0, 0, 0, 0), self.before_data[xoy[0], xoy[1]]))
 
     def update_canvas(self):
         self.content = Image.new("RGBA", (self.width, self.height), self.background_color)
@@ -79,8 +71,8 @@ class Canvas:
             self.merge_layers(self.layers[:self.current_layer], self.before_data)
 
         if self.layers[self.current_layer].is_active:
-            self.drawing_layer = self.layers[self.current_layer]
-        self.drawing_data = self.drawing_layer.get_content(self.current_frame).load()
+            self.drawing_layer = self.layers[self.current_layer].get_content(self.current_frame)
+        self.drawing_data = self.drawing_layer.load()
 
         self.after_current_layer = Image.new("RGBA", (self.width, self.height), self.background_color)
         self.after_data = self.after_current_layer.load()

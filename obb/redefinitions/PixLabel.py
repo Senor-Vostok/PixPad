@@ -25,6 +25,13 @@ class PixLabel(QLabel):
 
     def mouseReleaseEvent(self, event):
         self.draw = False
+        self.app.brush.brush(self.canvas, event.pos(), self.scale_factor, not self.draw)
+        self.app.canvas.update_canvas()
+        self.app.canvas.history.append([tuple(self.app.canvas.before_current_layer.getdata()),
+                                        tuple(self.app.canvas.drawing_layer.getdata()),
+                                        tuple(self.app.canvas.after_current_layer.getdata())])
+        self.app.canvas.history = self.app.canvas.history[-50:]
+        self.update_func()
         event.accept()
 
     def enterEvent(self, a0):
