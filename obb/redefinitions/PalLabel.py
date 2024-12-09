@@ -17,7 +17,7 @@ class PalLabel(QLabel):
             self.app.label_visibility.setPixmap(self.app.palette.visibility_line())
         elif self.type_of_palette == "visibility":
             self.app.label_visibility.setPixmap(self.app.palette.visibility_line(xoy=(event.pos().x(), event.pos().y())))
-        self.app.brushes[0].color = self.app.palette.color  # brush
+        self.app.brush.color = self.app.palette.color  # brush
         self.app.label_preview.setPixmap(self.app.palette.preview())
 
     def mousePressEvent(self, event):

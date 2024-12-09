@@ -1,4 +1,6 @@
+import numpy as np
 from obb.Brush.simple_brush import SimpleBrush
+from collections import deque
 
 
 class Filler(SimpleBrush):
@@ -11,19 +13,21 @@ class Filler(SimpleBrush):
         self.size = None
 
     def iterative_fill(self, x, y):
-        stack = [(x, y)]
-        visited = set()
-        while stack:
-            cx, cy = stack.pop()
-            if (cx, cy) in visited:
-                continue
-            visited.add((cx, cy))
+        queue = deque([(x, y)])
+        visited = np.zeros(self.size, dtype=bool)
+        visited[x, y] = True
+        while queue:
+            cx, cy = queue.popleft()
             if not (0 <= cx < self.size[0] and 0 <= cy < self.size[1]):
                 continue
-            if self.data[cx, cy] != self.painted_color:
+            if not np.array_equal(self.data[cx, cy], self.painted_color):
                 continue
             self.bag.append([(cx, cy), self.color])
-            stack.extend([(cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)])
+            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                nx, ny = cx + dx, cy + dy
+                if 0 <= nx < self.size[0] and 0 <= ny < self.size[1] and not visited[nx, ny]:
+                    visited[nx, ny] = True
+                    queue.append((nx, ny))
 
     def brush(self, canvas, xoy, k, brushing):
         cx = int(xoy.x() // k)

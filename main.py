@@ -22,8 +22,9 @@ class PixPad(QWidget):
         self.grid_layout = QGridLayout()
 
         self.brushes = init_brushes()
+        self.brush = self.brushes[0]
 
-        self.canvas = init_canvas((96, 54))
+        self.canvas = init_canvas((960, 540))
 
         self.palette = init_palette()
         self.label_preview = QLabel()
@@ -45,7 +46,7 @@ class PixPad(QWidget):
         self.color_grid_layout.setVerticalSpacing(3)
         self.show_colors(self.colors)
 
-        self.brushes[0].color = self.palette.color
+        self.brush.color = self.palette.color
 
         self.speed_zoom = 2
 
@@ -127,8 +128,14 @@ class PixPad(QWidget):
         self.work_layout.addWidget(self.right_panel, 1)
         self.main_layout.addLayout(self.work_layout, 30)
 
+    def change_brush(self, number, label):
+        color = self.brush.color
+        self.brush = self.brushes[number]
+        self.brush.color = color
+        label.setPixmap(self.brush.get_ico([100, 100]))
+
     def resize_brush(self):
-        self.brushes[0].resize(self.slider.value())
+        self.brush.resize(self.slider.value())
         self.value_brush.setText(f"X{self.slider.value()}")
 
     def save_canvas_as_png(self):
@@ -179,7 +186,7 @@ class PixPad(QWidget):
 
     def change_color(self, color):
         self.palette.color = color
-        self.brushes[0].color = color
+        self.brush.color = color
         self.label_palette.setPixmap(self.palette.colors_line())
         self.label_colors.setPixmap(self.palette.show_palette())
         self.label_visibility.setPixmap(self.palette.visibility_line())
@@ -274,9 +281,8 @@ class PixPad(QWidget):
             col = i % max_columns
             self.color_grid_layout.addWidget(color_button, row, col)
 
-    def show_brushes(self, brushes, current_brush=None):
-        if not current_brush:
-            current_brush = brushes[0]
+    def show_brushes(self, brushes):
+        current_brush = self.brush
         brushes_layout = QHBoxLayout()
         brushes_layout.setAlignment(Qt.AlignLeft)
         main_brush = QLabel(self)
@@ -290,6 +296,7 @@ class PixPad(QWidget):
         for i, brush in enumerate(brushes):
             button_brush = QPushButton()
             button_brush.setStyleSheet(BUTTON_BRUSH)
+            button_brush.clicked.connect(lambda _, x=i: self.change_brush(x, main_brush))
             button_brush.setFixedSize(self.size_of_buttons, self.size_of_buttons)
             button_brush.setIcon(QIcon(brush.get_ico()))
             row = i // max_column

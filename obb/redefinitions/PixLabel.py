@@ -7,7 +7,6 @@ class PixLabel(QLabel):
         self.app = app
         self.func = app.zoom_canvas
         self.draw = False
-        self.brush_func = app.brushes[0].brush
         self.update_func = app.update_canvas
         self.canvas = app.canvas
         self.scale_factor = 1
@@ -15,12 +14,12 @@ class PixLabel(QLabel):
 
     def mousePressEvent(self, event):
         self.draw = True
-        self.brush_func(self.canvas, event.pos(), self.scale_factor, not self.draw)
+        self.app.brush.brush(self.canvas, event.pos(), self.scale_factor, not self.draw)
         self.update_func()
         event.accept()
 
     def mouseMoveEvent(self, event):
-        self.brush_func(self.canvas, event.pos(), self.scale_factor, not self.draw)
+        self.app.brush.brush(self.canvas, event.pos(), self.scale_factor, not self.draw)
         self.update_func()
         event.accept()
 
