@@ -19,7 +19,6 @@ class Palette:
         data = pattern.load()
         light_gray = (192, 192, 192, 255)
         dark_gray = (128, 128, 128, 255)
-
         for x in range(width):
             for y in range(height):
                 data[x, y] = blend_pixels(
@@ -37,16 +36,13 @@ class Palette:
         step = (255 * 6) // width
         self.line_colors = Image.new("RGBA", (width, height))
         self.data_colors = self.line_colors.load()
-
         mode = [
             (0, step, 0, 0), (-step, 0, 0, 0), (0, 0, step, 0),
             (0, -step, 0, 0), (step, 0, 0, 0), (0, 0, -step, 0)
         ]
-
         for y in range(height):
             k_mode = 0
             color = [255, 0, 0, 255]
-
             for x in range(width):
                 self.data_colors[x, y] = tuple(color)
                 new_color = [
@@ -58,7 +54,6 @@ class Palette:
                         color[i] + mode[k_mode][i] for i in range(4)
                     ]
                 color = new_color
-
         x, y = find_closest_color(
             self.data_colors, width, height, self.color[:3] + (255,)
         ) if not xoy else xoy

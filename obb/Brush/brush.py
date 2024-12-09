@@ -13,7 +13,6 @@ class Brush(SimpleBrush):
         self.cy = 0.00000
         self.rx = 0.00000
         self.ry = 0.00000
-        self.geometry = [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1]]
         self.figure = 'BOB'
         self.color = color
 
@@ -49,16 +48,14 @@ class Brush(SimpleBrush):
                     self.ry = float(i[0])
 
     def resize(self, new_size=1):
-        if self.rx + new_size > 64:
-            return
-        scale = new_size / self.size if self.size != 0 else 1
+        scale = max(self.size, new_size) / min(self.size, new_size)
         self.size = new_size
-        if self.size <= 3:
-            self.geometry = [[0, 0], [1, 0], [0, 1], [1, 1]] if self.size == 2 else [[0, 0]]
-            self.geometry = [[0, 0], [1, 0], [0, 1], [1, 1]] if self.size == 3 else self.geometry
-            return
         self.rx = int(self.rx * scale)
         self.ry = int(self.ry * scale)
+        if self.size <= 3:
+            self.geometry = [[0, 0], [1, 0], [0, 1], [1, 1]] if self.size == 2 else [[0, 0]]
+            self.geometry = [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1]] if self.size == 3 else self.geometry
+            return
         cells = []
         for x in range(round(-self.rx), round(self.rx + 1)):
             for y in range(round(-self.ry), round(self.ry + 1)):

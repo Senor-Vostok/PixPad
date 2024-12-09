@@ -16,30 +16,28 @@ def blend_pixels(pixel_top, pixel_bottom):
     return r, g, b, a
 
 
-def find_closest_color(layer, width, height, target_color):
-    def color_distance(c1, c2):
-        return math.sqrt(
-            (c1[0] - c2[0]) ** 2 +
-            (c1[1] - c2[1]) ** 2 +
-            (c1[2] - c2[2]) ** 2 +
-            (c1[3] - c2[3]) ** 2
-        )
-
-    closest_cords = None
+def find_closest_color(data, width, height, target_color):
     min_distance = float('inf')
-    for y in range(height):
-        for x in range(width):
-            current_color = layer[x, y]
-            dist = color_distance(current_color, target_color)
-            if dist < min_distance:
-                min_distance = dist
-                closest_cords = (x, y)
-    return closest_cords
+    closest_x, closest_y = 0, 0
+    target_brightness = 0.299 * target_color[0] + 0.587 * target_color[1] + 0.114 * target_color[2]
+    for x in range(width):
+        for y in range(height):
+            color = data[x, y]
+            color_brightness = 0.299 * color[0] + 0.587 * color[1] + 0.114 * color[2]
+            distance = sum((color[i] - target_color[i]) ** 2 for i in range(3)) + (
+                        color_brightness - target_brightness) ** 2
+
+            if distance < min_distance:
+                min_distance = distance
+                closest_x, closest_y = x, y
+
+    return closest_x, closest_y
 
 
 def adjust_color_based_on_brightness(color):
     brightness = 0.299 * color[0] + 0.587 * color[1] + 0.114 * color[2]
-    return (0, 0, 0, color[3]) if brightness > 127 else (255, 255, 255, color[3])
+    threshold = 1
+    return (0, 0, 0, color[3]) if brightness > threshold else (255, 255, 255, color[3])
 
 
 def draw_border_circle(line, width, height, center, radius=6, border_width=2):
