@@ -60,7 +60,7 @@ BUTTON_BRIGHT = """
         background-repeat: no-repeat;
         background-position: center;
         border: none;
-        background-color: rgb(<<color>>);
+        background-color: rgba(<<color>>);
     }
     QPushButton:hover {
         background-image: url('data/ico/buttons_hover/bright.png');
@@ -71,7 +71,7 @@ BUTTON_DARK = """
         background-repeat: no-repeat;
         background-position: center;
         border: none;
-        background-color: rgb(<<color>>);
+        background-color: rgba(<<color>>);
     }
     QPushButton:hover {
         background-image: url('data/ico/buttons_hover/dark.png');
