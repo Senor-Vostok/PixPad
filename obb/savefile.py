@@ -22,15 +22,3 @@ class PixelEditorSaver:
 
         transparent_image.save(filename, "PNG")
 
-if __name__ == "__main__":
-    width, height = 128, 128
-    background_color = (255, 255, 255, 255)
-
-    content = Image.new("RGBA", (width, height), background_color)
-    content_data = content.load()
-    for x in range(0, width, 2):
-        for y in range(0, height, 2):
-            content_data[x, y] = (255, 0, 0, 255)
-
-    saver = PixelEditorSaver(width, height, background_color, content)
-    saver.save_as_png("a.png")

@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QByteArray
 from obb.styles import *
 from obb.initialization import *
 from PyQt5.Qt import QIcon, QColor
@@ -7,7 +7,9 @@ import sys
 from obb.redefinitions.PixFrame import PixFrame
 from obb.redefinitions.PixLabel import PixLabel
 from obb.redefinitions.PalLabel import PalLabel
-
+from obb.savefile import *
+from PyQt5.QtGui import QPixmap, QImage
+from PIL import Image
 
 class PixPad(QWidget):
     def __init__(self):
@@ -80,6 +82,7 @@ class PixPad(QWidget):
         self.center_frame.setWidgetResizable(True)
         self.center_frame.setStyleSheet("background-color: rgb(32, 33, 37);border-radius: 5px;border: 4px solid rgba(0, 0, 0, 255);")
         self.update_canvas()
+
         self.center_frame.setAlignment(Qt.AlignCenter)
         self.center_frame.setWidget(self.drawing_label)
 
@@ -102,6 +105,11 @@ class PixPad(QWidget):
 
         self.top_panel = QHBoxLayout()
         self.file = QPushButton("Файл")
+        self.file_menu = QMenu()
+        self.save_png_action = QAction("Сохранить как PNG", self)
+        self.save_png_action.triggered.connect(self.save_canvas_as_png)
+        self.file_menu.addAction(self.save_png_action)
+        self.file.setMenu(self.file_menu)
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setMinimum(1)
         self.slider.setMaximum(64)
@@ -124,6 +132,14 @@ class PixPad(QWidget):
         self.brushes[0].resize(self.slider.value())
         self.value_brush.setText(f"X{self.slider.value()}")
 
+    def save_canvas_as_png(self):
+        options = QFileDialog.Options()
+        filepath, _ = QFileDialog.getSaveFileName(self, "Сохранить как PNG", "", "PNG Files (*.png)", options=options)
+        if filepath:
+            pil_image = self.canvas.content
+
+            saver = PixelEditorSaver(self.canvas.width, self.canvas.height, self.canvas.background_color, pil_image)
+            saver.save_as_png(filepath)
     def show_lf(self, count_layouts=1, count_frames=1):
         self.grid_layout.setHorizontalSpacing(10)
         self.grid_layout.setVerticalSpacing(5)
