@@ -112,14 +112,11 @@ class PixPad(QWidget):
         main_layout.addLayout(work_layout, 30)
 
     def save_canvas_as_png(self):
-        # Диалог для выбора пути сохранения
         options = QFileDialog.Options()
         filepath, _ = QFileDialog.getSaveFileName(self, "Сохранить как PNG", "", "PNG Files (*.png)", options=options)
         if filepath:
-            # Получение текущего состояния холста
-            pil_image = self.canvas.content  # Используем свойство content из Canvas
+            pil_image = self.canvas.content
 
-            # Сохраняем через PixelEditorSaver
             saver = PixelEditorSaver(self.canvas.width, self.canvas.height, self.canvas.background_color, pil_image)
             saver.save_as_png(filepath)
     def show_lf(self, count_layouts=1, count_frames=1):
