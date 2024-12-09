@@ -2,13 +2,13 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="32"
-   height="32"
-   viewBox="0 0 32 32"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
    version="1.1"
    id="svg1"
+   sodipodi:docname="Square.svg"
    inkscape:version="1.4 (86a8ad7, 2024-10-11)"
-   sodipodi:docname="Vector.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -22,10 +22,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:document-units="px"
-     inkscape:zoom="17.3"
-     inkscape:cx="15.982659"
-     inkscape:cy="19.971098"
+     inkscape:document-units="mm"
+     inkscape:zoom="0.69753788"
+     inkscape:cx="397.11105"
+     inkscape:cy="561.25984"
      inkscape:window-width="1920"
      inkscape:window-height="1001"
      inkscape:window-x="-9"
@@ -38,12 +38,12 @@
      inkscape:label="Слой 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <ellipse
-       style="fill:#ffffff;stroke:#000000;stroke-width:1.25901"
-       id="path1"
-       cx="16.00"
-       cy="16.00"
-       rx="1"
-       ry="1" />
+    <rect
+       style="stroke:#000000;stroke-width:0.264583"
+       id="rect2"
+       width="116.06896"
+       height="42.862068"
+       x="51.206894"
+       y="53.103447" />
   </g>
 </svg>

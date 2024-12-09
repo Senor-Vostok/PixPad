@@ -5,18 +5,8 @@ from obb.Brush.simple_brush import SimpleBrush
 
 
 class Brush(SimpleBrush):
-    def __init__(self, pattern_path, color=(0, 128, 255, 255), size_coef=1):
-        self.pattern_path = 'data/brushes/test_brush/Vector.svg'
-        self.ico = QPixmap(QImage(pattern_path))
-        self.send_pack = list()
-        self.cx = 0.00000
-        self.cy = 0.00000
-        self.rx = 0.00000
-        self.ry = 0.00000
-        self.figure = 'BOB'
-        self.color = color
-
-        self.size = size_coef
+    def __init__(self, pattern_path, vector_path):
+        super().__init__(pattern_path, vector_path)
         self.init_brush()
 
     def init_brush(self):
@@ -40,40 +30,28 @@ class Brush(SimpleBrush):
                     i = i.replace('rx="', '')
                     i = i.replace('"', '')
                     i = i.split()
-                    self.rx = float(i[0])
+                    self.base_rx = float(i[0])
                 if 'ry' in i and "inkscape" not in i:
                     i = i.replace('ry="', '')
                     i = i.replace('"', '')
                     i = i.split()
-                    self.ry = float(i[0])
+                    self.base_ry = float(i[0])
 
     def resize(self, new_size=1):
-        scale = max(self.size, new_size) / min(self.size, new_size)
+        scale = new_size / self.base_size
         self.size = new_size
-        self.rx = int(self.rx * scale)
-        self.ry = int(self.ry * scale)
+        rx = float(self.base_rx * scale)  # Масштабируем базовый радиус rx
+        ry = float(self.base_ry * scale)
         if self.size <= 3:
             self.geometry = [[0, 0], [1, 0], [0, 1], [1, 1]] if self.size == 2 else [[0, 0]]
             self.geometry = [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1]] if self.size == 3 else self.geometry
             return
         cells = []
-        for x in range(round(-self.rx), round(self.rx + 1)):
-            for y in range(round(-self.ry), round(self.ry + 1)):
-                if sqrt((x ** 2) / round(self.rx) ** 2 + (y ** 2) / round(self.ry) ** 2) <= 1:
+        for x in range(round(-rx), round(rx + 1)):
+            for y in range(round(-ry), round(ry + 1)):
+                if sqrt((x ** 2) / round(rx) ** 2 + (y ** 2) / round(ry) ** 2) <= 1:
                     cells.append((x, y))
         self.geometry = cells
-
-    def recolor(self, new_color):  # прописать логику изменения цвета
-        self.color = new_color
-
-    def draw(self, canvas, current_frame, xoy, k):
-        pass
-
-    def get_ico(self, current_size=None):
-        if current_size:
-            b = self.ico.scaled(current_size[0], current_size[1])
-            return b  # Увеличенная иконка
-        return self.ico
 
     def brush(self, canvas, xoy, k, brushing):
         cx = xoy.x() // k

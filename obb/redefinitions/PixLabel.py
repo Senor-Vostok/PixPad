@@ -28,6 +28,10 @@ class PixLabel(QLabel):
         self.draw = False
         event.accept()
 
+    def enterEvent(self, a0):
+        self.scale_factor = self.app.pixmap_canvas.width() / self.app.canvas.content.size[0]
+        a0.accept()
+
     def wheelEvent(self, event):
         delta = event.angleDelta().y()
         self.func(delta)
