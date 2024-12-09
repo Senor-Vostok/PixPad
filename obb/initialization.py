@@ -1,5 +1,5 @@
 import os
-from obb.brush import Brush
+from obb.Brush.brush import Brush
 from obb.canvas import Canvas
 from obb.palette import Palette
 
