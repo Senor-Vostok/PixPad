@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt, QByteArray
+from PyQt5.QtCore import Qt, QPropertyAnimation, QRect, QTimer
 from obb.styles import *
 from obb.initialization import *
 from PyQt5.Qt import QIcon, QColor
@@ -8,13 +8,14 @@ from obb.redefinitions.PixFrame import PixFrame
 from obb.redefinitions.PixLabel import PixLabel
 from obb.redefinitions.PalLabel import PalLabel
 from obb.savefile import *
-from PyQt5.QtGui import QKeySequence
+from PyQt5.QtGui import QKeySequence, QPixmap
 
 
 class PixPad(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('PixPad')
+        self.setWindowIcon(QIcon("data/logo/ico.ico"))
 
         self.size_of_buttons = 30
 
@@ -109,6 +110,7 @@ class PixPad(QWidget):
 
         self.top_panel = QHBoxLayout()
         self.file = QPushButton("Файл")
+        self.file.setFixedWidth(100)
         self.file_menu = QMenu()
         self.create = QAction("Создать...", self)
         self.save_png_action = QAction("Сохранить как PNG", self)
@@ -118,8 +120,9 @@ class PixPad(QWidget):
         self.file.setMenu(self.file_menu)
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setMinimum(1)
-        self.slider.setMaximum(64)
+        self.slider.setMaximum(32)
         self.slider.setTickInterval(1)
+        self.slider.setFixedWidth(200)
         self.slider.valueChanged.connect(lambda _: self.resize_brush())
         self.value_brush = QLabel(f"X {self.slider.value()}")
         self.top_panel.addWidget(self.file)
@@ -340,8 +343,40 @@ class PixPad(QWidget):
         return layout
 
 
+class AnimatedSplashScreen(QSplashScreen):
+    def __init__(self, pixmap):
+        super().__init__(pixmap)
+        self.setWindowFlags(Qt.SplashScreen | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.opacity_effect = QGraphicsOpacityEffect(self)
+        self.setGraphicsEffect(self.opacity_effect)
+        self.animation = QPropertyAnimation(self.opacity_effect, b"opacity")
+
+    def fade_in(self):
+        self.animation.setDuration(500)
+        self.animation.setStartValue(0.0)
+        self.animation.setEndValue(1.0)
+        self.animation.start()
+
+    def fade_out(self, callback):
+        self.animation.setDuration(500)
+        self.animation.setStartValue(1.0)
+        self.animation.setEndValue(0.0)
+        self.animation.finished.connect(callback)
+        self.animation.start()
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = PixPad()
-    window.show()
+    splash_pix = QPixmap("data/logo/logo.png")
+    splash = AnimatedSplashScreen(splash_pix)
+    splash.show()
+    splash.fade_in()
+
+    def start_main_window():
+        splash.close()
+        window = PixPad()
+        window.show()
+    QTimer.singleShot(2000, lambda: splash.fade_out(start_main_window))
+
     sys.exit(app.exec_())
