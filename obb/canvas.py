@@ -87,8 +87,6 @@ class Canvas:
         if self.current_layer < len(self.layers) - 1:
             self.merge_layers(self.layers[self.current_layer + 1:], self.after_data)
 
-        self.content = Image.new("RGBA", (self.width, self.height), self.background_color)
-        self.content_data = self.content.load()
         for x in range(self.width):
             for y in range(self.height):
                 self.content_data[x, y] = blend_pixels(blend_pixels(self.after_data[x, y], self.drawing_data[x, y]), self.before_data[x, y])
@@ -116,3 +114,25 @@ class Canvas:
         for i in range(len(self.layers[0].frames)):
             frames.append(Frame(Image.new("RGBA", (self.width, self.height), self.background_color)))
         self.layers.append(Layer(frames))
+
+    def get_raw(self):
+        content = Image.new("RGBA", (self.width, self.height), self.background_color)
+        content_data = content.load()
+        before_current_layer = Image.new("RGBA", (self.width, self.height), self.background_color)
+        before_data = before_current_layer.load()
+        if self.current_layer > 0:
+            self.merge_layers(self.layers[:self.current_layer], before_data)
+
+        if self.layers[self.current_layer].is_active:
+            drawing_layer = self.layers[self.current_layer]
+        drawing_data = drawing_layer.get_content(self.current_frame).load()
+
+        after_current_layer = Image.new("RGBA", (self.width, self.height), self.background_color)
+        after_data = after_current_layer.load()
+        if self.current_layer < len(self.layers) - 1:
+            self.merge_layers(self.layers[self.current_layer + 1:], after_data)
+
+        for x in range(self.width):
+            for y in range(self.height):
+                content_data[x, y] = blend_pixels(blend_pixels(after_data[x, y], drawing_data[x, y]), before_data[x, y])
+        return content

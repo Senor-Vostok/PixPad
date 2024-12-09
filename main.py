@@ -8,8 +8,7 @@ from obb.redefinitions.PixFrame import PixFrame
 from obb.redefinitions.PixLabel import PixLabel
 from obb.redefinitions.PalLabel import PalLabel
 from obb.savefile import *
-from PyQt5.QtGui import QPixmap, QImage
-from PIL import Image
+
 
 class PixPad(QWidget):
     def __init__(self):
@@ -24,7 +23,7 @@ class PixPad(QWidget):
 
         self.brushes = init_brushes()
 
-        self.canvas = init_canvas((960, 540))
+        self.canvas = init_canvas((96, 54))
 
         self.palette = init_palette()
         self.label_preview = QLabel()
@@ -136,10 +135,10 @@ class PixPad(QWidget):
         options = QFileDialog.Options()
         filepath, _ = QFileDialog.getSaveFileName(self, "Сохранить как PNG", "", "PNG Files (*.png)", options=options)
         if filepath:
-            pil_image = self.canvas.content
-
+            pil_image = self.canvas.get_raw()
             saver = PixelEditorSaver(self.canvas.width, self.canvas.height, self.canvas.background_color, pil_image)
             saver.save_as_png(filepath)
+
     def show_lf(self, count_layouts=1, count_frames=1):
         self.grid_layout.setHorizontalSpacing(10)
         self.grid_layout.setVerticalSpacing(5)
