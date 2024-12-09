@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QByteArray
 from obb.styles import *
 from obb.initialization import *
 from PyQt5.Qt import QIcon, QColor
@@ -7,7 +7,9 @@ import sys
 from obb.redefinitions.PixFrame import PixFrame
 from obb.redefinitions.PixLabel import PixLabel
 from obb.redefinitions.PalLabel import PalLabel
-
+from obb.savefile import *
+from PyQt5.QtGui import QPixmap, QImage
+from PIL import Image
 
 class PixPad(QWidget):
     def __init__(self):
@@ -94,6 +96,11 @@ class PixPad(QWidget):
 
         top_panel = QHBoxLayout()
         file = QPushButton("Файл")
+        file_menu = QMenu()
+        save_png_action = QAction("Сохранить как PNG", self)
+        save_png_action.triggered.connect(self.save_canvas_as_png)
+        file_menu.addAction(save_png_action)
+        file.setMenu(file_menu)
         top_panel.addWidget(file)
         top_panel.setAlignment(Qt.AlignLeft)
 
@@ -104,6 +111,17 @@ class PixPad(QWidget):
         work_layout.addWidget(right_panel, 1)
         main_layout.addLayout(work_layout, 30)
 
+    def save_canvas_as_png(self):
+        # Диалог для выбора пути сохранения
+        options = QFileDialog.Options()
+        filepath, _ = QFileDialog.getSaveFileName(self, "Сохранить как PNG", "", "PNG Files (*.png)", options=options)
+        if filepath:
+            # Получение текущего состояния холста
+            pil_image = self.canvas.content  # Используем свойство content из Canvas
+
+            # Сохраняем через PixelEditorSaver
+            saver = PixelEditorSaver(self.canvas.width, self.canvas.height, self.canvas.background_color, pil_image)
+            saver.save_as_png(filepath)
     def show_lf(self, count_layouts=1, count_frames=1):
         self.grid_layout.setHorizontalSpacing(10)
         self.grid_layout.setVerticalSpacing(5)
