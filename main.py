@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QPropertyAnimation, QTimer
 from obb.styles import *
 from obb.initialization import *
-from PyQt5.Qt import QIcon, QColor
+from PyQt5.Qt import QIcon, QColor, QSize
 import sys
 from obb.redefinitions.PixFrame import PixFrame
 from obb.redefinitions.PixLabel import PixLabel
@@ -170,6 +170,7 @@ class PixPad(QWidget):
         self.brush = self.brushes[number]
         self.brush.color = color
         label.setPixmap(self.brush.get_ico([100, 100]))
+        self.slider.setSliderPosition(self.brush.size)
 
     def resize_brush(self):
         self.brush.resize(self.slider.value())
@@ -325,6 +326,7 @@ class PixPad(QWidget):
         main_brush = QLabel(self)
         main_brush.setFixedSize(100, 100)
         main_brush.setPixmap(current_brush.get_ico([100, 100]))
+        main_brush.setAlignment(Qt.AlignCenter)
         brushes_layout.addWidget(main_brush)
         grid_brush = QGridLayout()
         grid_brush.setHorizontalSpacing(0)
@@ -336,6 +338,7 @@ class PixPad(QWidget):
             button_brush.clicked.connect(lambda _, x=i: self.change_brush(x, main_brush))
             button_brush.setFixedSize(self.size_of_buttons, self.size_of_buttons)
             button_brush.setIcon(QIcon(brush.get_ico()))
+            button_brush.setIconSize(QSize(int(self.size_of_buttons * 0.75), int(self.size_of_buttons * 0.75)))
             row = i // max_column
             col = i % max_column
             grid_brush.addWidget(button_brush, row, col)

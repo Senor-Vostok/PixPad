@@ -1,6 +1,7 @@
 import os
 from obb.Brush.brush import Brush
 from obb.Brush.filler import Filler
+from obb.Brush.eraser import Eraser
 from obb.canvas import Canvas
 from obb.palette import Palette
 
@@ -17,6 +18,8 @@ def init_brushes():
                             brushes.append(Brush(f"data/brushes/{brush}/ico.png", f"data/brushes/{brush}/{file}"))
                         elif type_brush == 'filler':
                             brushes.append(Filler(f"data/brushes/{brush}/ico.png", f"data/brushes/{brush}/{file}"))
+                        elif type_brush == 'eraser':
+                            brushes.append(Eraser(f"data/brushes/{brush}/ico.png", f"data/brushes/{brush}/{file}"))
                         break
 
     return brushes

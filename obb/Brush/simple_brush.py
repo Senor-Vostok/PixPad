@@ -22,7 +22,7 @@ class SimpleBrush:
     def get_ico(self, current_size=None):
         if current_size:
             b = self.ico.scaled(current_size[0], current_size[1])
-            return b  # Увеличенная иконка
+            return b
         return self.ico
 
     def brush(self, canvas, xoy, k, brushing) -> None: ...
