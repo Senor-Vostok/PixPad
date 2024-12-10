@@ -8,29 +8,23 @@ class PixLabel(QLabel):
         self.func = app.zoom_canvas
         self.draw = False
         self.update_func = app.update_canvas
-        self.canvas = app.canvas
         self.scale_factor = 1
         self.setMouseTracking(True)
 
     def mousePressEvent(self, event):
         self.draw = True
-        self.app.brush.brush(self.canvas, event.pos(), self.scale_factor, not self.draw)
+        self.app.brush.brush(self.app.canvas, event.pos(), self.scale_factor, not self.draw)
         self.update_func()
         event.accept()
 
     def mouseMoveEvent(self, event):
-        self.app.brush.brush(self.canvas, event.pos(), self.scale_factor, not self.draw)
+        self.app.brush.brush(self.app.canvas, event.pos(), self.scale_factor, not self.draw)
         self.update_func()
         event.accept()
 
     def mouseReleaseEvent(self, event):
         self.draw = False
-        self.app.brush.brush(self.canvas, event.pos(), self.scale_factor, not self.draw)
-        self.app.canvas.update_canvas()
-        self.app.canvas.history.append([tuple(self.app.canvas.before_current_layer.getdata()),
-                                        tuple(self.app.canvas.drawing_layer.getdata()),
-                                        tuple(self.app.canvas.after_current_layer.getdata())])
-        self.app.canvas.history = self.app.canvas.history[-50:]
+        self.app.brush.brush(self.app.canvas, event.pos(), self.scale_factor, not self.draw)
         self.update_func()
         event.accept()
 

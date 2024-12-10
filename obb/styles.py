@@ -1,4 +1,6 @@
 SCALE = 300
+WARNING_SCALE = "Изображение слишком большого формата\nмогут быть перебои в работе"
+SCALE_WARNING = 240000
 BUTTON_LAYOUT = """
     QPushButton {
         background-image: url('data/ico/buttons_passive/layout.png');

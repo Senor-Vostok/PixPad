@@ -32,9 +32,6 @@ class Canvas:
             self.layers.append(Layer([first_frame]))
         self.update_canvas()
         self.brush_history = [()]
-        self.history = [[tuple(self.before_current_layer.getdata()),
-                         tuple(self.drawing_layer.getdata()),
-                         tuple(self.after_current_layer.getdata())]]
 
     def fill_pixels(self, pixels, display_brush=False, erase=False):
         if not self.layers[self.current_layer].is_active:

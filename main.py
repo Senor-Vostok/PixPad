@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt, QPropertyAnimation, QRect, QTimer
+from PyQt5.QtCore import Qt, QPropertyAnimation, QTimer
 from obb.styles import *
 from obb.initialization import *
 from PyQt5.Qt import QIcon, QColor
@@ -9,6 +9,7 @@ from obb.redefinitions.PixLabel import PixLabel
 from obb.redefinitions.PalLabel import PalLabel
 from obb.savefile import *
 from PyQt5.QtGui import QKeySequence, QPixmap
+from obb.Windows.create_canvas import ImageSizeWindow
 
 
 class PixPad(QWidget):
@@ -60,7 +61,6 @@ class PixPad(QWidget):
 
     def init_ui(self):
         self.undo_shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
-        self.undo_shortcut.activated.connect(lambda: self.last_image())
 
         self.shadow_effect.setBlurRadius(20)
         self.shadow_effect.setXOffset(5)
@@ -111,13 +111,19 @@ class PixPad(QWidget):
         self.top_panel = QHBoxLayout()
         self.file = QPushButton("Файл")
         self.file.setFixedWidth(100)
+
         self.file_menu = QMenu()
-        self.create = QAction("Создать...", self)
-        self.save_png_action = QAction("Сохранить как PNG", self)
+        self.create = QAction("Новый...", self)
+        self.create.triggered.connect(self.create_new_canvas)
+        self.open = QAction("Открыть...", self)
+        self.open.triggered.connect(self.open_canvas)
+        self.save_png_action = QAction("Сохранить как...", self)
         self.save_png_action.triggered.connect(self.save_canvas_as_png)
         self.file_menu.addAction(self.create)
+        self.file_menu.addAction(self.open)
         self.file_menu.addAction(self.save_png_action)
         self.file.setMenu(self.file_menu)
+
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setMinimum(1)
         self.slider.setMaximum(32)
@@ -137,15 +143,26 @@ class PixPad(QWidget):
         self.work_layout.addWidget(self.right_panel, 1)
         self.main_layout.addLayout(self.work_layout, 30)
 
-    def last_image(self):
-        if len(self.canvas.history) < 2:
-            return
-        old = self.canvas.history[-2]
-        self.canvas.history = self.canvas.history[:-1]
-        self.canvas.before_current_layer.putdata(old[0])
-        self.canvas.drawing_layer.putdata(old[1])
-        self.canvas.after_current_layer.putdata(old[2])
+    def open_canvas(self):
+        options = QFileDialog.Options()
+        filepath, _ = QFileDialog.getOpenFileName(self, "Открыть", "", "PNG Files (*.png)", options=options)
+        image = Image.open(filepath)
+        data = image.getdata()
+        if image.width * image.height >= SCALE_WARNING:
+            QMessageBox.warning(self, "Большое разрешение", WARNING_SCALE)
+        self.canvas = init_canvas((image.width, image.height))
+        self.canvas.drawing_layer.putdata(data)
         self.canvas.update_canvas()
+        self.pixmap_canvas = self.canvas.get_content()
+        self.update_canvas()
+
+    def create_new_canvas(self):
+        wind = ImageSizeWindow(self.create_canvas)
+        wind.show()
+
+    def create_canvas(self, size):
+        self.canvas = init_canvas(size)
+        self.pixmap_canvas = self.canvas.get_content()
         self.update_canvas()
 
     def change_brush(self, number, label):
@@ -353,7 +370,7 @@ class AnimatedSplashScreen(QSplashScreen):
         self.animation = QPropertyAnimation(self.opacity_effect, b"opacity")
 
     def fade_in(self):
-        self.animation.setDuration(500)
+        self.animation.setDuration(1000)
         self.animation.setStartValue(0.0)
         self.animation.setEndValue(1.0)
         self.animation.start()
@@ -377,6 +394,6 @@ if __name__ == "__main__":
         splash.close()
         window = PixPad()
         window.show()
-    QTimer.singleShot(2000, lambda: splash.fade_out(start_main_window))
+    QTimer.singleShot(1500, lambda: splash.fade_out(start_main_window))
 
     sys.exit(app.exec_())
