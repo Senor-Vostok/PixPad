@@ -56,7 +56,13 @@ class PixPad(QWidget):
         self.drawing_label = PixLabel(self)
         self.pixmap_canvas = self.canvas.get_content()
 
+        self.timer_anim = QTimer()
+        self.timer_anim.setInterval(100)
+        self.timer_anim.timeout.connect(lambda: self.change_frame(self.canvas.current_frame + 2 if self.canvas.current_frame + 1 < len(self.canvas.layers[0].frames) else 1, self.canvas.current_layer))
+        self.play_animation = False
+
         self.init_ui()
+
         self.showMaximized()
 
     def init_ui(self):
@@ -74,6 +80,16 @@ class PixPad(QWidget):
         self.left_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
 
         self.left_content = QWidget()
+        self.choisen_frame = QLabel(self.left_content)
+        self.choisen_frame.setStyleSheet("background-color: rgba(255, 255, 255, 50);")
+        self.choisen_frame.setFixedSize(2000, self.size_of_buttons + 10)
+        self.choisen_frame.setAlignment(Qt.AlignHCenter)
+        self.choisen_frame.lower()
+        self.choisen_layer = QLabel(self.left_content)
+        self.choisen_layer.setStyleSheet("background-color: rgba(255, 255, 255, 50);")
+        self.choisen_layer.setFixedSize(self.size_of_buttons + 10, 2000)
+        self.choisen_layer.setAlignment(Qt.AlignVCenter)
+        self.choisen_layer.lower()
         self.left_content.setStyleSheet("background-color: rgb(32, 33, 37);border-radius: 5px;border: 4px solid rgba(0, 0, 0, 255);")
         self.left_layout = QVBoxLayout(self.left_content)
         self.left_layout.setAlignment(Qt.AlignTop)
@@ -81,6 +97,7 @@ class PixPad(QWidget):
         self.left_layout.addLayout(self.grid_layout)
         self.left_content.setLayout(self.left_layout)
         self.left_scroll_area.setWidget(self.left_content)
+        self.move_visualiser()
 
         self.center_frame = PixFrame(self.zoom_canvas)
         self.center_frame.setFrameShape(QFrame.StyledPanel)
@@ -109,9 +126,9 @@ class PixPad(QWidget):
         self.splitter.setStretchFactor(1, 18)
 
         self.top_panel = QHBoxLayout()
+
         self.file = QPushButton("Файл")
         self.file.setFixedWidth(100)
-
         self.file_menu = QMenu()
         self.create = QAction("Новый...", self)
         self.create.triggered.connect(self.create_new_canvas)
@@ -131,7 +148,14 @@ class PixPad(QWidget):
         self.slider.setFixedWidth(200)
         self.slider.valueChanged.connect(lambda _: self.resize_brush())
         self.value_brush = QLabel(f"X {self.slider.value()}")
+
+        self.animation_button = QPushButton()
+        self.animation_button.clicked.connect(lambda: self.animation_canvas())
+        self.animation_button.setFixedSize(self.size_of_buttons, self.size_of_buttons)
+        self.animation_button.setStyleSheet(BUTTON_PLAY)
+
         self.top_panel.addWidget(self.file)
+        self.top_panel.addWidget(self.animation_button)
         self.top_panel.addWidget(self.slider)
         self.top_panel.addWidget(self.value_brush)
         self.top_panel.setAlignment(Qt.AlignLeft)
@@ -142,6 +166,18 @@ class PixPad(QWidget):
         self.work_layout.addWidget(self.splitter, 10)
         self.work_layout.addWidget(self.right_panel, 1)
         self.main_layout.addLayout(self.work_layout, 30)
+
+    def animation_canvas(self):
+        self.play_animation = not self.play_animation
+        self.animation_button.setStyleSheet(BUTTON_PAUSE if self.play_animation else BUTTON_PLAY)
+        if self.play_animation:
+            self.timer_anim.start()
+        else:
+            self.timer_anim.stop()
+
+    def move_visualiser(self):
+        self.choisen_layer.move(4 + self.canvas.current_layer * (self.size_of_buttons + 10), 0)
+        self.choisen_frame.move(0, 4 + (self.canvas.current_frame + 1) * (self.size_of_buttons + 5))
 
     def open_canvas(self):
         options = QFileDialog.Options()
@@ -252,6 +288,7 @@ class PixPad(QWidget):
         self.canvas.current_frame = number_frame - 1
         self.canvas.update_canvas()
         self.update_canvas()
+        self.move_visualiser()
 
     def add_frame(self):
         count = len(self.canvas.layers[0].frames)
