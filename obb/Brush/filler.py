@@ -10,22 +10,22 @@ class Filler(SimpleBrush):
         self.bag = []
         self.painted_color = None
         self.data = None
-        self.size = None
+        self.size_depth = None
 
     def iterative_fill(self, x, y):
         queue = deque([(x, y)])
-        visited = np.zeros(self.size, dtype=bool)
+        visited = np.zeros(self.size_depth, dtype=bool)
         visited[x, y] = True
         while queue:
             cx, cy = queue.popleft()
-            if not (0 <= cx < self.size[0] and 0 <= cy < self.size[1]):
+            if not (0 <= cx < self.size_depth[0] and 0 <= cy < self.size_depth[1]):
                 continue
             if not np.array_equal(self.data[cx, cy], self.painted_color):
                 continue
             self.bag.append([(cx, cy), self.color])
             for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                 nx, ny = cx + dx, cy + dy
-                if 0 <= nx < self.size[0] and 0 <= ny < self.size[1] and not visited[nx, ny]:
+                if 0 <= nx < self.size_depth[0] and 0 <= ny < self.size_depth[1] and not visited[nx, ny]:
                     visited[nx, ny] = True
                     queue.append((nx, ny))
 
@@ -37,7 +37,7 @@ class Filler(SimpleBrush):
             return
         self.bag.clear()
         self.data = canvas.drawing_data
-        self.size = (canvas.width, canvas.height)
+        self.size_depth = (canvas.width, canvas.height)
         self.painted_color = self.data[cx, cy]
         self.iterative_fill(cx, cy)
         canvas.fill_pixels(self.bag, brushing)
