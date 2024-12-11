@@ -13,20 +13,17 @@ class PixLabel(QLabel):
 
     def mousePressEvent(self, event):
         self.draw = True
-        self.app.brush.brush(self.app.canvas, event.pos(), self.scale_factor, not self.draw)
+        self.app.brush.brush(self.app.canvas, event.pos(), self.scale_factor, not self.draw, self.app)
         self.update_func()
-        event.accept()
 
     def mouseMoveEvent(self, event):
-        self.app.brush.brush(self.app.canvas, event.pos(), self.scale_factor, not self.draw)
+        self.app.brush.brush(self.app.canvas, event.pos(), self.scale_factor, not self.draw, self.app)
         self.update_func()
-        event.accept()
 
     def mouseReleaseEvent(self, event):
         self.draw = False
-        self.app.brush.brush(self.app.canvas, event.pos(), self.scale_factor, not self.draw)
+        self.app.brush.brush(self.app.canvas, event.pos(), self.scale_factor, not self.draw, self.app)
         self.update_func()
-        event.accept()
 
     def enterEvent(self, a0):
         self.scale_factor = self.app.pixmap_canvas.width() / self.app.canvas.content.size[0]

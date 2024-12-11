@@ -29,7 +29,7 @@ class Filler(SimpleBrush):
                     visited[nx, ny] = True
                     queue.append((nx, ny))
 
-    def brush(self, canvas, xoy, k, brushing):
+    def brush(self, canvas, xoy, k, brushing, app=None):
         cx = int(xoy.x() // k)
         cy = int(xoy.y() // k)
         if brushing:

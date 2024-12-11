@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QPropertyAnimation, QTimer
 from obb.styles import *
 from obb.initialization import *
-from PyQt5.Qt import QIcon, QColor, QSize
+from PyQt5.Qt import QIcon, QColor, QSize, QCursor, QPainter
 import sys
 from obb.redefinitions.PixFrame import PixFrame
 from obb.redefinitions.PixLabel import PixLabel
@@ -103,6 +103,14 @@ class PixPad(QWidget):
         self.center_frame.setFrameShape(QFrame.StyledPanel)
         self.center_frame.setWidgetResizable(True)
         self.center_frame.setStyleSheet("background-color: rgb(32, 33, 37);border-radius: 5px;border: 4px solid rgba(0, 0, 0, 255);")
+        pixmap = QPixmap(10, 10)
+        pixmap.fill(Qt.transparent)
+        painter = QPainter(pixmap)
+        painter.setBrush(Qt.white)
+        painter.drawEllipse(2, 2, 6, 6)
+        painter.end()
+        cursor = QCursor(pixmap)
+        self.center_frame.setCursor(cursor)
         self.update_canvas()
 
         self.center_frame.setAlignment(Qt.AlignCenter)
@@ -262,7 +270,7 @@ class PixPad(QWidget):
         self.palette.color = color
         self.brush.color = color
         self.label_palette.setPixmap(self.palette.colors_line())
-        self.label_colors.setPixmap(self.palette.show_palette())
+        self.label_colors.setPixmap(self.palette.show_palette(create_new=True))
         self.label_visibility.setPixmap(self.palette.visibility_line())
         self.label_preview.setPixmap(self.palette.preview())
 
@@ -369,13 +377,14 @@ class PixPad(QWidget):
         grid_brush.setHorizontalSpacing(0)
         grid_brush.setVerticalSpacing(0)
         max_column = 4
+        size_of_buttons = int(self.size_of_buttons * 1.2)
         for i, brush in enumerate(brushes):
             button_brush = QPushButton()
             button_brush.setStyleSheet(BUTTON_BRUSH)
             button_brush.clicked.connect(lambda _, x=i: self.change_brush(x, main_brush))
-            button_brush.setFixedSize(self.size_of_buttons, self.size_of_buttons)
+            button_brush.setFixedSize(size_of_buttons, size_of_buttons)
             button_brush.setIcon(QIcon(brush.get_ico()))
-            button_brush.setIconSize(QSize(int(self.size_of_buttons * 0.75), int(self.size_of_buttons * 0.75)))
+            button_brush.setIconSize(QSize(int(size_of_buttons * 0.75), int(size_of_buttons * 0.75)))
             row = i // max_column
             col = i % max_column
             grid_brush.addWidget(button_brush, row, col)

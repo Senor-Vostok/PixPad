@@ -13,7 +13,7 @@ class PalLabel(QLabel):
             self.app.label_visibility.setPixmap(self.app.palette.visibility_line())
         elif self.type_of_palette == "colors":
             self.app.label_palette.setPixmap(self.app.palette.colors_line(xoy=(event.pos().x(), event.pos().y())))
-            self.app.label_colors.setPixmap(self.app.palette.show_palette(changed_contrast=True))
+            self.app.label_colors.setPixmap(self.app.palette.show_palette(changed_contrast=True, create_new=True))
             self.app.label_visibility.setPixmap(self.app.palette.visibility_line())
         elif self.type_of_palette == "visibility":
             self.app.label_visibility.setPixmap(self.app.palette.visibility_line(xoy=(event.pos().x(), event.pos().y())))
@@ -25,5 +25,8 @@ class PalLabel(QLabel):
         event.accept()
 
     def mouseMoveEvent(self, event):
-        self.manager(event)
+        try:
+            self.manager(event)
+        except Exception:
+            pass
         event.accept()

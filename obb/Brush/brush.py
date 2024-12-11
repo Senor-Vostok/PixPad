@@ -54,7 +54,7 @@ class Brush(SimpleBrush):
                     cells.append((x, y))
         self.geometry = cells
 
-    def brush(self, canvas, xoy, k, brushing):
+    def brush(self, canvas, xoy, k, brushing, app=None):
         if brushing and self.bag:
             canvas.fill_pixels(self.bag, False)
             self.bag.clear()

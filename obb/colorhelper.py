@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 
 def blend_pixels(pixel_top, pixel_bottom):
@@ -14,6 +15,21 @@ def blend_pixels(pixel_top, pixel_bottom):
     b = int((b1 * alpha1 + b2 * alpha2 * (1 - alpha1)) / alpha)
     a = int(alpha * 255)
     return r, g, b, a
+
+
+def generate_normals_palette(size=255):
+    palette = []
+    step = size // 10
+    for i in range(-size // 2, size // 2, step):
+        for j in range(-size // 2, size // 2, step):
+            x, y, z = i / size, j / size, np.sqrt(1 - (i / size) ** 2 - (j / size) ** 2)
+            r = int((x + 1) * 127.5)
+            g = int((y + 1) * 127.5)
+            b = int((z + 1) * 127.5)
+            color = (r, g, b, 255)
+            points = [(size // 2 + i, size // 2 + j), (size // 2 + j, size // 2 - i)]
+            palette.append((color, points))
+    return palette
 
 
 def find_closest_color(data, width, height, target_color):

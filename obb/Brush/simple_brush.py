@@ -11,8 +11,7 @@ class SimpleBrush:
         self.base_size = size_coef
         self.base_rx = 0.000
         self.base_ry = 0.000
-        self.geometry = [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1]]
-        self.figure = 'BOB'
+        self.geometry = [[0, 0]]
         self.color = color
 
         self.size = size_coef
@@ -25,4 +24,4 @@ class SimpleBrush:
             return b
         return self.ico
 
-    def brush(self, canvas, xoy, k, brushing) -> None: ...
+    def brush(self, canvas, xoy, k, brushing, app=None) -> None: ...

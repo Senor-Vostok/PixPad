@@ -7,7 +7,7 @@ class Eraser(Brush):
         self.bag = set()
         self.geometry = [[0, 0]]
 
-    def brush(self, canvas, xoy, k, brushing):
+    def brush(self, canvas, xoy, k, brushing, app=None):
         if brushing and self.bag:
             canvas.fill_pixels(self.bag, False, True)
             self.bag.clear()
