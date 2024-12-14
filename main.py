@@ -41,6 +41,7 @@ class PixPad(QWidget):
         self.colors = [(0, 0, 0, 255), (34, 32, 52, 255), (69, 40, 60, 255), (102, 57, 49, 255), (143, 86, 59, 255),
                        (223, 113, 38, 255), (217, 160, 102, 255), (238, 195, 154, 255), (251, 242, 54, 255),
                        (153, 229, 80, 255), (106, 190, 48, 255), (55, 148, 110, 255), (75, 105, 47, 255), (82, 75, 36, 255),
+                       (50, 60, 57, 255), (63, 63, 116, 255), (48, 96, 130, 255), (91, 110, 225, 255), (99, 155, 255, 255),
                        (95, 205, 228, 255), (203, 219, 252, 255), (255, 255, 255, 255), (155, 173, 183, 255), (132, 126, 135, 255),
                        (105, 106, 106, 255), (89, 86, 82, 255), (118, 66, 138, 255), (172, 50, 50, 255), (217, 87, 99, 255),
                        (215, 123, 186, 255), (143, 151, 74, 255), (138, 111, 48, 255)]
@@ -193,9 +194,25 @@ class PixPad(QWidget):
         self.frame_menu.addAction(delete)
         self.frame.setMenu(self.frame_menu)
 
+        self.palitra = QPushButton("Палитра")
+        self.palitra.setStyleSheet(BUTTON_SETTING)
+        self.palitra.setFixedWidth(80)
+        self.palitra_menu = QMenu()
+        simple = QAction("Тень", self)
+        simple.triggered.connect(lambda _: self.change_palette(SIMPLE_SHADOW_PALETTE))
+        shadow = QAction("Тень пиксель-арт", self)
+        shadow.triggered.connect(lambda _: self.change_palette(PIXEL_SHADOW_PALETTE))
+        normals = QAction("Нормаль", self)
+        normals.triggered.connect(lambda _: self.change_palette(NORMAL_PALETTE, "normal"))
+        self.palitra_menu.addAction(simple)
+        self.palitra_menu.addAction(shadow)
+        self.palitra_menu.addAction(normals)
+        self.palitra.setMenu(self.palitra_menu)
+
         self.top_panel.addWidget(self.file)
         self.top_panel.addWidget(self.layer)
         self.top_panel.addWidget(self.frame)
+        self.top_panel.addWidget(self.palitra)
         self.top_panel.addWidget(self.animation_button)
         self.top_panel.addWidget(self.slider)
         self.top_panel.addWidget(self.value_brush)
@@ -207,6 +224,13 @@ class PixPad(QWidget):
         self.work_layout.addWidget(self.splitter, 10)
         self.work_layout.addWidget(self.right_panel, 1)
         self.main_layout.addLayout(self.work_layout, 30)
+
+    def change_palette(self, pattern_palette, type_palette=None):
+        self.palette = Palette(pattern_palette, self.palette.color, type_palette)
+        self.label_preview.setPixmap(self.palette.preview())
+        self.label_visibility.setPixmap(self.palette.visibility_line())
+        self.label_palette.setPixmap(self.palette.colors_line())
+        self.label_colors.setPixmap(self.palette.show_palette())
 
     def last_image(self):
         if self.canvas.history[self.canvas.current_layer][self.canvas.current_frame][-1]:

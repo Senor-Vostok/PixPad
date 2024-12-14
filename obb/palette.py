@@ -4,10 +4,12 @@ from obb.colorhelper import *
 
 
 class Palette:
-    def __init__(self, pattern_palette, name, chosen_color):
-        self.palette = [[(255, 255, 255, 255), ((0, 0), (0, 255)), 100], [(0, 0, 0, 255), ((0, 255), (255, 255)), 100]]
-        self.pattern = self.bake_pattern(255)
-        self.name = name
+    def __init__(self, pattern_palette, chosen_color, type_palette=None):
+        self.palette = pattern_palette
+        if type_palette == "normal":
+            self.pattern = self.generate_circular_normal_palette(255)
+        else:
+            self.pattern = self.bake_pattern(255)
         self.color = chosen_color
         self.contrast_color = chosen_color
         self.line_colors = Image.new("RGBA", (255, 10))
@@ -17,6 +19,27 @@ class Palette:
         self.colors_line(255, create=True)
         self.show_palette(create_new=True)
         self.old_xoy = (0, 0)
+
+    def generate_circular_normal_palette(self, size):
+        image = Image.new("RGBA", (size, size), (106, 106, 254, 255))
+        pixels = image.load()
+        center_x, center_y = size // 2, size // 2
+        radius = size // 2
+        for y in range(size):
+            for x in range(size):
+                dx = (x - center_x) / radius
+                dy = (y - center_y) / radius
+                dist = math.sqrt(dx * dx + dy * dy)
+                if dist <= 1:
+                    nx = dx
+                    ny = -dy
+                    nz = math.sqrt(max(0.0, 1.0 - nx * nx - ny * ny))
+                    r = int((nx + 1) * 127.5)
+                    g = int((ny + 1) * 127.5)
+                    b = int((nz + 1) * 127.5)
+                    a = 255
+                    pixels[x, y] = (r, g, b, a)
+        return image
 
     def bake_pattern(self, size):
         palette_image = Image.new("RGBA", (size, size), (0, 0, 0, 0))

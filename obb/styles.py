@@ -1,6 +1,9 @@
 SCALE = 300
 WARNING_SCALE = "Изображение слишком большого формата\nмогут быть перебои в работе"
 SCALE_WARNING = 240000
+SIMPLE_SHADOW_PALETTE = [[(255, 255, 255, 255), ((0, 0), (0, 255)), 100], [(0, 0, 0, 255), ((0, 255), (255, 255)), 100]]
+PIXEL_SHADOW_PALETTE = [[(230, 238, 255, 255), ((0, 0), (0, 255)), 100], [(0, 15, 50, 255), ((0, 255), (255, 255)), 100]]
+NORMAL_PALETTE = []
 BUTTON_SETTING = """
     QPushButton {
         background-color: #D3D3D3;

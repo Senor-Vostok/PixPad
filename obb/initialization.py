@@ -5,6 +5,7 @@ from obb.Brush.eraser import Eraser
 from obb.Brush.pipette import Pipette
 from obb.canvas import Canvas
 from obb.palette import Palette
+from obb.styles import *
 
 
 def init_brushes():
@@ -33,4 +34,4 @@ def init_canvas(size):
 
 
 def init_palette():
-    return Palette(None, None, (94, 128, 19, 255))
+    return Palette(SIMPLE_SHADOW_PALETTE, (94, 128, 19, 255))
