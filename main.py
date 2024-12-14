@@ -67,6 +67,7 @@ class PixPad(QWidget):
 
     def init_ui(self):
         self.undo_shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
+        self.undo_shortcut.activated.connect(lambda: self.last_image())
 
         self.shadow_effect.setBlurRadius(20)
         self.shadow_effect.setXOffset(5)
@@ -175,6 +176,17 @@ class PixPad(QWidget):
         self.work_layout.addWidget(self.right_panel, 1)
         self.main_layout.addLayout(self.work_layout, 30)
 
+    def last_image(self):
+        if len(self.canvas.history) < 2:
+            return
+        old = self.canvas.history[-2]
+        self.canvas.history = self.canvas.history[:-1]
+        self.canvas.before_current_layer.putdata(old[0])
+        self.canvas.drawing_layer.putdata(old[1])
+        self.canvas.after_current_layer.putdata(old[2])
+        self.canvas.update_canvas()
+        self.update_canvas()
+
     def animation_canvas(self):
         self.play_animation = not self.play_animation
         self.animation_button.setStyleSheet(BUTTON_PAUSE if self.play_animation else BUTTON_PLAY)
@@ -197,8 +209,19 @@ class PixPad(QWidget):
         self.canvas = init_canvas((image.width, image.height))
         self.canvas.drawing_layer.putdata(data)
         self.canvas.update_canvas()
+        self.canvas.history = [[tuple(self.canvas.before_current_layer.getdata()),
+                                tuple(self.canvas.drawing_layer.getdata()),
+                                tuple(self.canvas.after_current_layer.getdata())]]
         self.pixmap_canvas = self.canvas.get_content()
         self.update_canvas()
+        for i in range(self.grid_layout.count()):
+            item = self.grid_layout.itemAt(i)
+            if item.widget():
+                item.widget().deleteLater()
+            else:
+                item.deleteLater()
+        self.show_lf()
+        self.move_visualiser()
 
     def create_new_canvas(self):
         wind = ImageSizeWindow(self.create_canvas)
@@ -208,6 +231,14 @@ class PixPad(QWidget):
         self.canvas = init_canvas(size)
         self.pixmap_canvas = self.canvas.get_content()
         self.update_canvas()
+        for i in range(self.grid_layout.count()):
+            item = self.grid_layout.itemAt(i)
+            if item.widget():
+                item.widget().deleteLater()
+            else:
+                item.deleteLater()
+        self.show_lf()
+        self.move_visualiser()
 
     def change_brush(self, number, label):
         color = self.brush.color

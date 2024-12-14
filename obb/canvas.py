@@ -32,6 +32,9 @@ class Canvas:
             self.layers.append(Layer([first_frame]))
         self.update_canvas()
         self.brush_history = [()]
+        self.history = [[tuple(self.before_current_layer.getdata()),
+                         tuple(self.drawing_layer.getdata()),
+                         tuple(self.after_current_layer.getdata())]]
 
     def fill_pixels(self, pixels, display_brush=False, erase=False):
         if not self.layers[self.current_layer].is_active:
@@ -69,6 +72,8 @@ class Canvas:
 
         if self.layers[self.current_layer].is_active:
             self.drawing_layer = self.layers[self.current_layer].get_content(self.current_frame)
+        else:
+            self.drawing_layer = Image.new("RGBA", (self.width, self.height), self.background_color)
         self.drawing_data = self.drawing_layer.load()
 
         self.after_current_layer = Image.new("RGBA", (self.width, self.height), self.background_color)
@@ -96,7 +101,10 @@ class Canvas:
 
     def add_frame(self):
         for layer in self.layers:
-            layer.frames.append(Frame(Image.new("RGBA", (self.width, self.height), self.background_color)))
+            image = Image.new("RGBA", (self.width, self.height), self.background_color)
+            last_image = layer.get_content(len(layer.frames) - 1).getdata()
+            image.putdata(last_image)
+            layer.frames.append(Frame(image))
 
     def add_layout(self):
         frames = list()
@@ -113,8 +121,10 @@ class Canvas:
             self.merge_layers(self.layers[:self.current_layer], before_data)
 
         if self.layers[self.current_layer].is_active:
-            drawing_layer = self.layers[self.current_layer]
-        drawing_data = drawing_layer.get_content(self.current_frame).load()
+            drawing_layer = self.layers[self.current_layer].get_content(self.current_frame)
+        else:
+            drawing_layer = Image.new("RGBA", (self.width, self.height), self.background_color)
+        drawing_data = drawing_layer.load()
 
         after_current_layer = Image.new("RGBA", (self.width, self.height), self.background_color)
         after_data = after_current_layer.load()
