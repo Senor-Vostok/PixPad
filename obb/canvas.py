@@ -110,12 +110,25 @@ class Canvas:
             layer.frames.append(Frame(image))
             self.history[index].append([0, []])
 
+    def delete_frame(self, number):
+        number = self.current_frame if not number else number
+        for index, layer in enumerate(self.layers):
+            layer.frames.pop(number)
+            self.history[index].pop(number)
+        self.current_frame = self.current_frame - 1 if self.current_frame > 0 else 0
+
     def add_layout(self):
         frames = list()
         for i in range(len(self.layers[0].frames)):
             frames.append(Frame(Image.new("RGBA", (self.width, self.height), self.background_color)))
         self.layers.append(Layer(frames))
         self.history.append([[0, []] for _ in range(len(self.layers[0].frames))])
+
+    def delete_layout(self, number=None):
+        number = self.current_layer if not number else number
+        self.current_layer = self.current_layer - 1 if self.current_layer > 0 else 0
+        self.layers.pop(number)
+        self.history.pop(number)
 
     def get_raw(self):
         content = Image.new("RGBA", (self.width, self.height), self.background_color)

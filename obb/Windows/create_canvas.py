@@ -8,7 +8,8 @@ def on_create_button_click(width_input, height_input, window) -> None:
     if width * height >= SCALE_WARNING:
         QMessageBox.warning(window, "Большое разрешение", WARNING_SCALE)
     elif width <= 0 or height <= 0:
-        raise ValueError("Размеры должны быть положительными числами.")
+        QMessageBox.warning(window, "Отклонено", "Размеры должны быть положительными числами")
+        return
     window.function((width, height))
     window.close()
 

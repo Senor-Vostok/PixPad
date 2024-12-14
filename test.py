@@ -42,6 +42,7 @@ class MyWidget(QWidget):
         self.layout.removeWidget(button)
         button.deleteLater()  # Удаляем виджет из памяти
 
+
 app = QApplication([])
 window = MyWidget()
 app.exec_()

@@ -137,33 +137,65 @@ class PixPad(QWidget):
         self.top_panel = QHBoxLayout()
 
         self.file = QPushButton("Файл")
-        self.file.setFixedWidth(100)
+        self.file.setStyleSheet(BUTTON_SETTING)
+        self.file.setFixedWidth(80)
         self.file_menu = QMenu()
-        self.create = QAction("Новый...", self)
-        self.create.triggered.connect(self.create_new_canvas)
-        self.open = QAction("Открыть...", self)
-        self.open.triggered.connect(self.open_canvas)
-        self.save_png_action = QAction("Сохранить как...", self)
-        self.save_png_action.triggered.connect(self.save_canvas_as_png)
-        self.file_menu.addAction(self.create)
-        self.file_menu.addAction(self.open)
-        self.file_menu.addAction(self.save_png_action)
+        create = QAction("Новый...", self)
+        create.triggered.connect(self.create_new_canvas)
+        open_ = QAction("Открыть...", self)
+        open_.triggered.connect(self.open_canvas)
+        save_png_action = QAction("Сохранить как...", self)
+        save_png_action.triggered.connect(self.save_canvas_as_png)
+        self.file_menu.addAction(create)
+        self.file_menu.addAction(open_)
+        self.file_menu.addAction(save_png_action)
         self.file.setMenu(self.file_menu)
 
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setMinimum(1)
         self.slider.setMaximum(32)
         self.slider.setTickInterval(1)
-        self.slider.setFixedWidth(200)
+        self.slider.setFixedWidth(128)
         self.slider.valueChanged.connect(lambda _: self.resize_brush())
         self.value_brush = QLabel(f"X {self.slider.value()}")
+        self.value_brush.setStyleSheet(LABEL_INFO)
+        self.value_brush.setFixedWidth(64)
 
         self.animation_button = QPushButton()
         self.animation_button.clicked.connect(lambda: self.animation_canvas())
         self.animation_button.setFixedSize(self.size_of_buttons, self.size_of_buttons)
         self.animation_button.setStyleSheet(BUTTON_PLAY)
 
+        self.layer = QPushButton("Слой")
+        self.layer.setStyleSheet(BUTTON_SETTING)
+        self.layer.setFixedWidth(80)
+        self.layer_menu = QMenu()
+        new = QAction("Новый...", self)
+        new.triggered.connect(self.add_layout)
+        hide_show = QAction("Скрыть/показать", self)
+        hide_show.triggered.connect(lambda _: self.hide_show_layer(self.canvas.current_layer))
+        delete = QAction("Удалить...", self)
+        delete.triggered.connect(self.delete_layout)
+        self.layer_menu.addAction(new)
+        self.layer_menu.addAction(hide_show)
+        self.layer_menu.addAction(delete)
+        self.layer.setMenu(self.layer_menu)
+
+        self.frame = QPushButton("Кадр")
+        self.frame.setStyleSheet(BUTTON_SETTING)
+        self.frame.setFixedWidth(80)
+        self.frame_menu = QMenu()
+        new = QAction("Новый...", self)
+        new.triggered.connect(self.add_frame)
+        delete = QAction("Удалить...", self)
+        delete.triggered.connect(self.delete_frame)
+        self.frame_menu.addAction(new)
+        self.frame_menu.addAction(delete)
+        self.frame.setMenu(self.frame_menu)
+
         self.top_panel.addWidget(self.file)
+        self.top_panel.addWidget(self.layer)
+        self.top_panel.addWidget(self.frame)
         self.top_panel.addWidget(self.animation_button)
         self.top_panel.addWidget(self.slider)
         self.top_panel.addWidget(self.value_brush)
@@ -210,13 +242,16 @@ class PixPad(QWidget):
                                 tuple(self.canvas.after_current_layer.getdata())]]
         self.pixmap_canvas = self.canvas.get_content()
         self.update_canvas()
+        self.update_lf()
+
+    def update_lf(self):
         for i in range(self.grid_layout.count()):
             item = self.grid_layout.itemAt(i)
             if item.widget():
                 item.widget().deleteLater()
             else:
                 item.deleteLater()
-        self.show_lf()
+        self.show_lf(len(self.canvas.layers), len(self.canvas.layers[0].frames))
         self.move_visualiser()
 
     def create_new_canvas(self):
@@ -340,6 +375,15 @@ class PixPad(QWidget):
         self.grid_layout.addWidget(layout_button, count + 2, 0)
         self.canvas.add_frame()
 
+    def delete_frame(self):
+        if len(self.canvas.layers[0].frames) == 1:
+            QMessageBox.warning(self, "Отклонено", "Вы не можете удалить единственный кадр")
+            return
+        self.canvas.delete_frame(self.canvas.current_frame)
+        self.canvas.update_canvas()
+        self.update_canvas()
+        self.update_lf()
+
     def add_layout(self):
         count = len(self.canvas.layers)
         layout_button = QPushButton()
@@ -359,6 +403,15 @@ class PixPad(QWidget):
         layout_button.clicked.connect(self.add_layout)
         self.grid_layout.addWidget(layout_button, 0, count + 1)
         self.canvas.add_layout()
+
+    def delete_layout(self):
+        if len(self.canvas.layers) == 1:
+            QMessageBox.warning(self, "Отклонено", "Вы не можете удалить единственный слой")
+            return
+        self.canvas.delete_layout(self.canvas.current_layer)
+        self.canvas.update_canvas()
+        self.update_canvas()
+        self.update_lf()
 
     def update_canvas(self, width=None, height=None):
         if not width or not height:
@@ -434,6 +487,19 @@ class PixPad(QWidget):
         layout.addWidget(self.label_palette)
         layout.addWidget(self.label_colors)
         return layout
+
+    def closeEvent(self, event):
+        reply = QMessageBox.question(
+            self,
+            "Выход",
+            "Вы уверены, что хотите выйти?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
 
 class AnimatedSplashScreen(QSplashScreen):

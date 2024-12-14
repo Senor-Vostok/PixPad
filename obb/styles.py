@@ -1,6 +1,28 @@
 SCALE = 300
 WARNING_SCALE = "Изображение слишком большого формата\nмогут быть перебои в работе"
 SCALE_WARNING = 240000
+BUTTON_SETTING = """
+    QPushButton {
+        background-color: #D3D3D3;
+        border: none;
+        border-radius: 5px;
+        padding: 5px;
+    }
+    QPushButton:hover {
+        background-color: #C0C0C0;
+    }
+    QPushButton:pressed {
+        background-color: #A9A9A9;
+    }
+"""
+LABEL_INFO = """
+    QLabel {
+        font-family: Calibri;
+        color: #D3D3D3;
+        font-size: 14px;
+        font-weight: bold;
+    }
+"""
 BUTTON_PLAY = """
     QPushButton {
         background-image: url('data/ico/buttons_passive/play.png');
