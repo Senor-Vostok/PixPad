@@ -32,9 +32,8 @@ class Canvas:
             self.layers.append(Layer([first_frame]))
         self.update_canvas()
         self.brush_history = [()]
-        self.history = [[tuple(self.before_current_layer.getdata()),
-                         tuple(self.drawing_layer.getdata()),
-                         tuple(self.after_current_layer.getdata())]]
+        self.history = [[[0, []] for f in range(len(self.layers[0].frames))] for _ in range(len(self.layers))]
+        self.write = False
 
     def fill_pixels(self, pixels, display_brush=False, erase=False):
         if not self.layers[self.current_layer].is_active:
@@ -49,12 +48,16 @@ class Canvas:
                 self.brush_history = self.brush_history[-1:]
             self.brush_history.append([(xoy, self.content_data[xoy[0], xoy[1]]) for xoy, pixel in pixels])
         for xoy, pixel in pixels:
+            if self.write:
+                self.history[self.current_layer][self.current_frame][-1].append([(xoy[0], xoy[1]), self.drawing_data[xoy[0], xoy[1]]])
             if not erase:
                 self.drawing_data[xoy[0], xoy[1]] = blend_pixels(pixel, self.drawing_data[xoy[0], xoy[1]]) if not display_brush else self.drawing_data[xoy[0], xoy[1]]
+                if not display_brush:
+                    pixel = (0, 0, 0, 0)
                 self.content_data[xoy[0], xoy[1]] = blend_pixels(self.after_data[xoy[0], xoy[1]], blend_pixels(pixel, blend_pixels(self.drawing_data[xoy[0], xoy[1]], self.before_data[xoy[0], xoy[1]])))
             else:
-                self.drawing_data[xoy[0], xoy[1]] = (0, 0, 0, 0) if not display_brush else self.drawing_data[xoy[0], xoy[1]]
-                self.content_data[xoy[0], xoy[1]] = blend_pixels(self.after_data[xoy[0], xoy[1]], blend_pixels((0, 0, 0, 0), self.before_data[xoy[0], xoy[1]]))
+                self.drawing_data[xoy[0], xoy[1]] = pixel if not display_brush else self.drawing_data[xoy[0], xoy[1]]
+                self.content_data[xoy[0], xoy[1]] = blend_pixels(self.after_data[xoy[0], xoy[1]], blend_pixels(pixel, self.before_data[xoy[0], xoy[1]]))
 
     def update_canvas(self):
         self.content = Image.new("RGBA", (self.width, self.height), self.background_color)
@@ -100,17 +103,19 @@ class Canvas:
         return QPixmap(QImage(self.content.tobytes("raw", "RGBA"), self.width, self.height, QImage.Format_RGBA8888))
 
     def add_frame(self):
-        for layer in self.layers:
+        for index, layer in enumerate(self.layers):
             image = Image.new("RGBA", (self.width, self.height), self.background_color)
             last_image = layer.get_content(len(layer.frames) - 1).getdata()
             image.putdata(last_image)
             layer.frames.append(Frame(image))
+            self.history[index].append([0, []])
 
     def add_layout(self):
         frames = list()
         for i in range(len(self.layers[0].frames)):
             frames.append(Frame(Image.new("RGBA", (self.width, self.height), self.background_color)))
         self.layers.append(Layer(frames))
+        self.history.append([[0, []] for _ in range(len(self.layers[0].frames))])
 
     def get_raw(self):
         content = Image.new("RGBA", (self.width, self.height), self.background_color)

@@ -177,15 +177,11 @@ class PixPad(QWidget):
         self.main_layout.addLayout(self.work_layout, 30)
 
     def last_image(self):
-        if len(self.canvas.history) < 2:
-            return
-        old = self.canvas.history[-2]
-        self.canvas.history = self.canvas.history[:-1]
-        self.canvas.before_current_layer.putdata(old[0])
-        self.canvas.drawing_layer.putdata(old[1])
-        self.canvas.after_current_layer.putdata(old[2])
-        self.canvas.update_canvas()
-        self.update_canvas()
+        if self.canvas.history[self.canvas.current_layer][self.canvas.current_frame][-1]:
+            self.canvas.fill_pixels(self.canvas.history[self.canvas.current_layer][self.canvas.current_frame][-1], False, True)
+            self.canvas.history[self.canvas.current_layer][self.canvas.current_frame].pop(-1)
+            self.canvas.update_canvas()
+            self.update_canvas()
 
     def animation_canvas(self):
         self.play_animation = not self.play_animation

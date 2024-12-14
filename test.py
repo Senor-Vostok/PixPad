@@ -28,7 +28,7 @@ class MyWidget(QWidget):
         context_menu = QMenu(self)
 
         # Создаем действие для удаления кнопки
-        delete_action = QAction("Удалить", self)
+        delete_action = QAction("Удалить")
         delete_action.triggered.connect(lambda _, x=button: self.delete_button(x))
 
         # Добавляем действие в контекстное меню

@@ -33,11 +33,15 @@ class Filler(SimpleBrush):
         cx = int(xoy.x() // k)
         cy = int(xoy.y() // k)
         if brushing:
+            canvas.write = False
             canvas.fill_pixels([[(cx, cy), self.color]], brushing)
             return
-        self.bag.clear()
-        self.data = canvas.drawing_data
-        self.size_depth = (canvas.width, canvas.height)
-        self.painted_color = self.data[cx, cy]
-        self.iterative_fill(cx, cy)
-        canvas.fill_pixels(self.bag, brushing)
+        if not canvas.write:
+            canvas.write = True
+            canvas.history[canvas.current_layer][canvas.current_frame].append([])
+            self.bag.clear()
+            self.data = canvas.drawing_data
+            self.size_depth = (canvas.width, canvas.height)
+            self.painted_color = self.data[cx, cy]
+            self.iterative_fill(cx, cy)
+            canvas.fill_pixels(self.bag, brushing)

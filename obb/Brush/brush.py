@@ -1,6 +1,4 @@
-from PyQt5.Qt import QImage
 from math import sqrt
-from PyQt5.QtGui import QPixmap
 from obb.Brush.simple_brush import SimpleBrush
 
 
@@ -56,9 +54,12 @@ class Brush(SimpleBrush):
 
     def brush(self, canvas, xoy, k, brushing, app=None):
         if brushing and self.bag:
-            canvas.fill_pixels(self.bag, False)
+            canvas.write = False
             self.bag.clear()
         elif not brushing:
+            if not canvas.write:
+                canvas.history[canvas.current_layer][canvas.current_frame].append([])
+                canvas.write = True
             cx = xoy.x() // k
             cy = xoy.y() // k
             data = [((cx + i[0], cy + i[1]), self.color) for i in self.geometry if

@@ -9,12 +9,15 @@ class Eraser(Brush):
 
     def brush(self, canvas, xoy, k, brushing, app=None):
         if brushing and self.bag:
-            canvas.fill_pixels(self.bag, False, True)
+            canvas.write = False
             self.bag.clear()
         elif not brushing:
+            if not canvas.write:
+                canvas.history[canvas.current_layer][canvas.current_frame].append([])
+                canvas.write = True
             cx = xoy.x() // k
             cy = xoy.y() // k
-            data = [((cx + i[0], cy + i[1]), self.color) for i in self.geometry if
+            data = [((cx + i[0], cy + i[1]), (0, 0, 0, 0)) for i in self.geometry if
                     0 <= (cx + i[0]) < canvas.width and 0 <= (cy + i[1]) < canvas.height]
             extra_data = list()
             for pixel in data:
@@ -25,5 +28,5 @@ class Eraser(Brush):
         else:
             cx = xoy.x() // k
             cy = xoy.y() // k
-            canvas.fill_pixels([((cx + i[0], cy + i[1]), self.color) for i in self.geometry if
+            canvas.fill_pixels([((cx + i[0], cy + i[1]), (0, 0, 0, 0)) for i in self.geometry if
                                 0 <= (cx + i[0]) < canvas.width and 0 <= (cy + i[1]) < canvas.height], True, True)
