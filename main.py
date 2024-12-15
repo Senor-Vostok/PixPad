@@ -261,9 +261,6 @@ class PixPad(QWidget):
         self.canvas = init_canvas((image.width, image.height))
         self.canvas.drawing_layer.putdata(data)
         self.canvas.update_canvas()
-        self.canvas.history = [[tuple(self.canvas.before_current_layer.getdata()),
-                                tuple(self.canvas.drawing_layer.getdata()),
-                                tuple(self.canvas.after_current_layer.getdata())]]
         self.pixmap_canvas = self.canvas.get_content()
         self.update_canvas()
         self.update_lf()
