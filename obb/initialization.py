@@ -34,4 +34,4 @@ def init_canvas(size):
 
 
 def init_palette():
-    return Palette(SIMPLE_SHADOW_PALETTE, (94, 128, 19, 255))
+    return Palette(SIMPLE_SHADOW_PALETTE, (163, 73, 164, 255))

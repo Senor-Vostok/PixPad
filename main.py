@@ -261,6 +261,8 @@ class PixPad(QWidget):
     def open_canvas(self):
         options = QFileDialog.Options()
         filepath, _ = QFileDialog.getOpenFileName(self, "Открыть", "", "PNG Files (*.png)", options=options)
+        if not filepath:
+            return
         image = Image.open(filepath)
         data = image.getdata()
         if image.width * image.height >= SCALE_WARNING:
@@ -320,8 +322,7 @@ class PixPad(QWidget):
 
     def save_canvas_as_jpeg(self):
         options = QFileDialog.Options()
-        filepath, _ = QFileDialog.getSaveFileName(self, "Сохранить как JPEG", "", "JPEG Files (*.jpeg;*.jpg)",
-                                                  options=options)
+        filepath, _ = QFileDialog.getSaveFileName(self, "Сохранить как JPEG", "", "JPEG Files (*.jpeg;*.jpg)", options=options)
         if filepath:
             pil_image = self.canvas.get_raw()
             saver = PixelEditorSaver(self.canvas.width, self.canvas.height, self.canvas.background_color, pil_image, self.canvas)
