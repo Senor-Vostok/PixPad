@@ -145,11 +145,18 @@ class PixPad(QWidget):
         create.triggered.connect(self.create_new_canvas)
         open_ = QAction("Открыть...", self)
         open_.triggered.connect(self.open_canvas)
-        save_png_action = QAction("Сохранить как...", self)
+        save_png_action = QAction("Сохранить как PNG...", self)
         save_png_action.triggered.connect(self.save_canvas_as_png)
+        save_jpeg_action = QAction("Сохранить как JPEG...", self)
+        save_jpeg_action.triggered.connect(self.save_canvas_as_jpeg)
+        save_gif_action = QAction("Сохранить как GIF...", self)
+        save_gif_action.triggered.connect(self.save_canvas_as_gif)
+
         self.file_menu.addAction(create)
         self.file_menu.addAction(open_)
         self.file_menu.addAction(save_png_action)
+        self.file_menu.addAction(save_jpeg_action)
+        self.file_menu.addAction(save_gif_action)
         self.file.setMenu(self.file_menu)
 
         self.slider = QSlider(Qt.Horizontal)
@@ -308,8 +315,25 @@ class PixPad(QWidget):
         filepath, _ = QFileDialog.getSaveFileName(self, "Сохранить как PNG", "", "PNG Files (*.png)", options=options)
         if filepath:
             pil_image = self.canvas.get_raw()
-            saver = PixelEditorSaver(self.canvas.width, self.canvas.height, self.canvas.background_color, pil_image)
+            saver = PixelEditorSaver(self.canvas.width, self.canvas.height, self.canvas.background_color, pil_image, self.canvas)
             saver.save_as_png(filepath)
+
+    def save_canvas_as_jpeg(self):
+        options = QFileDialog.Options()
+        filepath, _ = QFileDialog.getSaveFileName(self, "Сохранить как JPEG", "", "JPEG Files (*.jpeg;*.jpg)",
+                                                  options=options)
+        if filepath:
+            pil_image = self.canvas.get_raw()
+            saver = PixelEditorSaver(self.canvas.width, self.canvas.height, self.canvas.background_color, pil_image, self.canvas)
+            saver.save_as_jpeg(filepath)
+
+    def save_canvas_as_gif(self):
+        options = QFileDialog.Options()
+        filepath, _ = QFileDialog.getSaveFileName(self, "Сохранить как GIF", "", "GIF Files (*.gif)", options=options)
+        if filepath:
+            pil_image = self.canvas.get_raw()
+            saver = PixelEditorSaver(self.canvas.width, self.canvas.height, self.canvas.background_color, pil_image, self.canvas)
+            saver.save_as_gif(filepath)
 
     def show_lf(self, count_layouts=1, count_frames=1):
         self.grid_layout.setHorizontalSpacing(10)
