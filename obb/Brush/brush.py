@@ -15,25 +15,17 @@ class Brush(SimpleBrush):
     def get_parametrs(self):
         with open(self.pattern_path, mode='rt') as f:
             for i in f.readlines():
-                if 'cx' in i and "inkscape" not in i:
-                    i = i.replace('cx="', '')
-                    i = i.replace('"', '')
-                    i = i.split()
+                if 'cx' in i and 'inkscape' not in i:
+                    i = i.replace('cx="', '').replace('"', '').split()
                     self.cx = float(i[0])
-                if 'cy' in i and "inkscape" not in i:
-                    i = i.replace('cy="', '')
-                    i = i.replace('"', '')
-                    i = i.split()
+                if 'cy' in i and 'inkscape' not in i:
+                    i = i.replace('cy="', '').replace('"', '').split()
                     self.cy = float(i[0])
-                if 'rx' in i and "inkscape" not in i:
-                    i = i.replace('rx="', '')
-                    i = i.replace('"', '')
-                    i = i.split()
+                if 'rx' in i and 'inkscape' not in i:
+                    i = i.replace('rx="', '').replace('"', '').split()
                     self.base_rx = float(i[0])
-                if 'ry' in i and "inkscape" not in i:
-                    i = i.replace('ry="', '')
-                    i = i.replace('"', '')
-                    i = i.split()
+                if 'ry' in i and 'inkscape' not in i:
+                    i = i.replace('ry="', '').replace('"', '').split()
                     self.base_ry = float(i[0])
 
     def resize(self, new_size=1):
@@ -48,29 +40,44 @@ class Brush(SimpleBrush):
         cells = []
         for x in range(round(-rx), round(rx + 1)):
             for y in range(round(-ry), round(ry + 1)):
-                if sqrt((x ** 2) / round(rx) ** 2 + (y ** 2) / round(ry) ** 2) <= 1:
+                if sqrt((x ** 2) / max(1, round(rx)) ** 2 + (y ** 2) / max(1, round(ry)) ** 2) <= 1:
                     cells.append((x, y))
         self.geometry = cells
 
-    def brush(self, canvas, xoy, k, brushing, app=None):
-        if brushing and self.bag:
-            canvas.write = False
-            self.bag.clear()
-        elif not brushing:
-            if not canvas.write:
-                canvas.history[canvas.current_layer][canvas.current_frame].append([])
-                canvas.write = True
-            cx = xoy.x() // k
-            cy = xoy.y() // k
-            data = [((cx + i[0], cy + i[1]), self.color) for i in self.geometry if
-                    0 <= (cx + i[0]) < canvas.width and 0 <= (cy + i[1]) < canvas.height]
-            extra_data = list()
-            for pixel in data:
-                if pixel not in self.bag:
-                    extra_data.append(pixel)
-                    self.bag.add(pixel)
-            canvas.fill_pixels(extra_data, False)
+    def _build_pixels(self, canvas, point):
+        cx, cy = point
+        data = []
+        for dx, dy in self.geometry:
+            x = cx + dx
+            y = cy + dy
+            if 0 <= x < canvas.width and 0 <= y < canvas.height:
+                data.append(((x, y), self.color))
+        return data
+
+    def _draw_unique(self, canvas, point):
+        extra_data = []
+        for pixel in self._build_pixels(canvas, point):
+            if pixel not in self.bag:
+                extra_data.append(pixel)
+                self.bag.add(pixel)
+        if extra_data:
+            canvas.fill_pixels(extra_data)
+
+    def on_press(self, canvas, pos, scale, app):
+        canvas.begin_action()
+        self.bag.clear()
+        point = (int(pos.x() // scale), int(pos.y() // scale))
+        self._draw_unique(canvas, point)
+
+    def on_move(self, canvas, pos, scale, dragging, app):
+        point = (int(pos.x() // scale), int(pos.y() // scale))
+        if dragging:
+            self._draw_unique(canvas, point)
         else:
-            cx = xoy.x() // k
-            cy = xoy.y() // k
-            canvas.fill_pixels([((cx + i[0], cy + i[1]), self.color) for i in self.geometry if 0 <= (cx + i[0]) < canvas.width and 0 <= (cy + i[1]) < canvas.height], True)
+            canvas.fill_pixels(self._build_pixels(canvas, point), display_brush=True)
+
+    def on_release(self, canvas, pos, scale, app):
+        point = (int(pos.x() // scale), int(pos.y() // scale))
+        self._draw_unique(canvas, point)
+        self.bag.clear()
+        canvas.end_action()

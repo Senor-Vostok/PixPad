@@ -8,5 +8,6 @@ class PixFrame(QScrollArea):
 
     def wheelEvent(self, event):
         delta = event.angleDelta().y()
-        self.func(delta) if self.func else None
+        if self.func:
+            self.func(delta)
         event.accept()

@@ -37,8 +37,7 @@ class Palette:
                     r = int((nx + 1) * 127.5)
                     g = int((ny + 1) * 127.5)
                     b = int((nz + 1) * 127.5)
-                    a = 255
-                    pixels[x, y] = (r, g, b, a)
+                    pixels[x, y] = (r, g, b, 255)
         return image
 
     def bake_pattern(self, size):
@@ -56,8 +55,7 @@ class Palette:
                         line_dist = distance(x, y, px, py)
                         if line_dist <= max_dist:
                             alpha = interpolate_alpha(color[3], line_dist, max_dist)
-                            blended_color = blend_pixels(interpolate_color(color, alpha), current_color)
-                            current_color = blended_color
+                            current_color = blend_pixels(interpolate_color(color, alpha), current_color)
                 palette_data[x, y] = current_color
         return palette_image
 
@@ -68,9 +66,7 @@ class Palette:
         dark_gray = (128, 128, 128, 255)
         for x in range(width):
             for y in range(height):
-                data[x, y] = blend_pixels(
-                    base_color, light_gray if (x // 16 + y // 16) % 2 == 0 else dark_gray
-                )
+                data[x, y] = blend_pixels(base_color, light_gray if (x // 16 + y // 16) % 2 == 0 else dark_gray)
         return pattern
 
     def preview(self, width=255):
@@ -94,19 +90,15 @@ class Palette:
                 color = [255, 0, 0, 255]
                 for x in range(width):
                     self.data_colors[x, y] = tuple(color)
-                    new_color = [
-                        color[i] + mode[k_mode][i] for i in range(4)
-                    ]
+                    new_color = [color[i] + mode[k_mode][i] for i in range(4)]
                     if any(spectre < 0 or spectre > 255 for spectre in new_color):
                         k_mode = (k_mode + 1) % len(mode)
-                        new_color = [
-                            color[i] + mode[k_mode][i] for i in range(4)
-                        ]
+                        new_color = [color[i] + mode[k_mode][i] for i in range(4)]
                     color = new_color
         line_colors.putdata(self.line_colors.getdata())
         line_data = line_colors.load()
-        x, y = find_closest_color(self.data_colors, width, height, self.color[:3] + (255,)) if not xoy else xoy
-        self.contrast_color = self.data_colors[x, y]
+        x, _ = find_closest_color(self.data_colors, width, height, self.color[:3] + (255,)) if not xoy else xoy
+        self.contrast_color = self.data_colors[x, 0]
         draw_border_circle(line_data, width, height, (x, height // 2))
         return QPixmap(QImage(line_colors.tobytes("raw", "RGBA"), width, height, QImage.Format_RGBA8888))
 
@@ -115,18 +107,11 @@ class Palette:
         step = 255 // width
         line = self._generate_checker_pattern(width, height, (0, 0, 0, 0))
         data = line.load()
-        for x in range(width):
-            for y in range(height):
-                if (x // 16 + y // 16) % 2 == 0:
-                    data[x, y] = (192, 192, 192, 255)
-                else:
-                    data[x, y] = (128, 128, 128, 255)
         for y in range(height):
             color = list(self.color[:3]) + [255]
             for x in range(width):
                 data[x, y] = blend_pixels(tuple(color), data[x, y])
                 color[3] -= step
-
         if xoy:
             self.color = self.color[:3] + (255 - xoy[0],)
         draw_border_circle(data, width, height, (255 - self.color[3], height // 2))
@@ -136,7 +121,6 @@ class Palette:
         size = 255
         palette_image = Image.new("RGBA", (size, size))
         palette_data = palette_image.load()
-
         if create_new:
             self.palette_image = Image.new("RGBA", (size, size), self.contrast_color)
             self.palette_data = self.palette_image.load()

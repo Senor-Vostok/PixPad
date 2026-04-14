@@ -17,12 +17,19 @@ def blend_pixels(pixel_top, pixel_bottom):
     return r, g, b, a
 
 
+def invert_pixel(pixel):
+    r, g, b, a = pixel
+    return 255 - r, 255 - g, 255 - b, a if a else 255
+
+
 def generate_normals_palette(size=255):
     palette = []
     step = size // 10
     for i in range(-size // 2, size // 2, step):
         for j in range(-size // 2, size // 2, step):
-            x, y, z = i / size, j / size, np.sqrt(1 - (i / size) ** 2 - (j / size) ** 2)
+            x = i / size
+            y = j / size
+            z = np.sqrt(max(0.0, 1 - x ** 2 - y ** 2))
             r = int((x + 1) * 127.5)
             g = int((y + 1) * 127.5)
             b = int((z + 1) * 127.5)
@@ -40,13 +47,10 @@ def find_closest_color(data, width, height, target_color):
         for y in range(height):
             color = data[x, y]
             color_brightness = 0.299 * color[0] + 0.587 * color[1] + 0.114 * color[2]
-            distance = sum((color[i] - target_color[i]) ** 2 for i in range(3)) + (
-                        color_brightness - target_brightness) ** 2
-
+            distance = sum((color[i] - target_color[i]) ** 2 for i in range(3)) + (color_brightness - target_brightness) ** 2
             if distance < min_distance:
                 min_distance = distance
                 closest_x, closest_y = x, y
-
     return closest_x, closest_y
 
 
@@ -81,9 +85,8 @@ def distance(x1, y1, x2, y2):
 
 
 def interpolate_color(start_color, alpha):
-    r, g, b, a = start_color
-    a = alpha
-    return r, g, b, a
+    r, g, b, _ = start_color
+    return r, g, b, alpha
 
 
 def interpolate_alpha(base_alpha, dist, max_dist):

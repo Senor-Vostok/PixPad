@@ -6,6 +6,9 @@ class Layer:
     def get_content(self, current_frame=0):
         return self.frames[current_frame].image
 
+    def set_content(self, current_frame, image):
+        self.frames[current_frame].image = image
+
     def add_frame(self, frame):
         self.frames.append(frame)
 

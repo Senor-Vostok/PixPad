@@ -4,29 +4,30 @@ from obb.Brush.brush import Brush
 class Eraser(Brush):
     def __init__(self, pattern_path, vector_path):
         super().__init__(pattern_path, vector_path)
-        self.bag = set()
         self.geometry = [[0, 0]]
 
-    def brush(self, canvas, xoy, k, brushing, app=None):
-        if brushing and self.bag:
-            canvas.write = False
-            self.bag.clear()
-        elif not brushing:
-            if not canvas.write:
-                canvas.history[canvas.current_layer][canvas.current_frame].append([])
-                canvas.write = True
-            cx = xoy.x() // k
-            cy = xoy.y() // k
-            data = [((cx + i[0], cy + i[1]), (0, 0, 0, 0)) for i in self.geometry if
-                    0 <= (cx + i[0]) < canvas.width and 0 <= (cy + i[1]) < canvas.height]
-            extra_data = list()
-            for pixel in data:
-                if pixel not in self.bag:
-                    extra_data.append(pixel)
-                    self.bag.add(pixel)
-            canvas.fill_pixels(extra_data, False, True)
+    def _build_pixels(self, canvas, point):
+        cx, cy = point
+        data = []
+        for dx, dy in self.geometry:
+            x = cx + dx
+            y = cy + dy
+            if 0 <= x < canvas.width and 0 <= y < canvas.height:
+                data.append(((x, y), (0, 0, 0, 0)))
+        return data
+
+    def _draw_unique(self, canvas, point):
+        extra_data = []
+        for pixel in self._build_pixels(canvas, point):
+            if pixel not in self.bag:
+                extra_data.append(pixel)
+                self.bag.add(pixel)
+        if extra_data:
+            canvas.fill_pixels(extra_data, erase=True)
+
+    def on_move(self, canvas, pos, scale, dragging, app):
+        point = (int(pos.x() // scale), int(pos.y() // scale))
+        if dragging:
+            self._draw_unique(canvas, point)
         else:
-            cx = xoy.x() // k
-            cy = xoy.y() // k
-            canvas.fill_pixels([((cx + i[0], cy + i[1]), (0, 0, 0, 0)) for i in self.geometry if
-                                0 <= (cx + i[0]) < canvas.width and 0 <= (cy + i[1]) < canvas.height], True, True)
+            canvas.fill_pixels(self._build_pixels(canvas, point), display_brush=True, erase=True)

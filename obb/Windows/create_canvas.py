@@ -17,8 +17,8 @@ def on_create_button_click(width_input, height_input, window) -> None:
 class ImageSizeWindow(QWidget):
     def __init__(self, function):
         super().__init__()
-        self.init_ui()
         self.function = function
+        self.init_ui()
 
     def init_ui(self):
         self.setWindowTitle("Создать изображение")

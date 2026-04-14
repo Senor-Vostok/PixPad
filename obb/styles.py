@@ -98,20 +98,6 @@ BUTTON_PLUS = """
         background-image: url('data/ico/buttons_active/plus.png');
     }
 """
-BUTTON_FRAME_SELECTED = """
-    QPushButton {
-        background-image: url('data/ico/buttons_passive/frame_selected.png');
-        background-repeat: no-repeat;
-        background-position: center;
-        border: none;
-    }
-    QPushButton:hover {
-        background-image: url('data/ico/buttons_hover/frame_selected.png');
-    }
-    QPushButton:pressed {
-        background-image: url('data/ico/buttons_active/frame_selected.png');
-    }
-"""
 BUTTON_FRAME = """
     QPushButton {
         background-image: url('data/ico/buttons_passive/frame.png');
@@ -153,12 +139,25 @@ BUTTON_BRUSH = """
         background-repeat: no-repeat;
         background-position: center;
         border: none;
-        
     }
     QPushButton:hover {
         background-image: url('data/ico/buttons_hover/dark.png');
     }
     QPushButton:pressed {
         background-image: url('data/ico/buttons_hover/bright.png');
+    }
+"""
+BUTTON_FRAME_SELECTED = """
+    QPushButton {
+        background-image: url('data/ico/buttons_passive/frame_selected.png');
+        background-repeat: no-repeat;
+        background-position: center;
+        border: none;
+    }
+    QPushButton:hover {
+        background-image: url('data/ico/buttons_hover/frame_selected.png');
+    }
+    QPushButton:pressed {
+        background-image: url('data/ico/buttons_active/frame_selected.png');
     }
 """
